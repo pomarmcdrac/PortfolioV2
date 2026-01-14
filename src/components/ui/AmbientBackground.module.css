@@ -1,0 +1,73 @@
+.backgroundContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--color-background);
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+  animation: float 20s infinite ease-in-out;
+}
+
+.orb1 {
+  width: 50vw;
+  height: 50vw;
+  background: radial-gradient(
+    circle,
+    var(--color-primary-glow) 0%,
+    transparent 70%
+  );
+  top: -10%;
+  left: -10%;
+  animation-delay: 0s;
+}
+
+.orb2 {
+  width: 40vw;
+  height: 40vw;
+  background: radial-gradient(
+    circle,
+    rgba(0, 224, 255, 0.2) 0%,
+    transparent 70%
+  );
+  bottom: -10%;
+  right: -10%;
+  animation-delay: -5s;
+}
+
+.orb3 {
+  width: 30vw;
+  height: 30vw;
+  background: radial-gradient(
+    circle,
+    rgba(100, 50, 255, 0.15) 0%,
+    transparent 70%
+  );
+  top: 40%;
+  left: 30%;
+  animation-delay: -10s;
+}
+
+@keyframes float {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}

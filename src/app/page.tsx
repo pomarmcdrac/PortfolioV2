@@ -1,0 +1,291 @@
+"use client";
+
+import { useState } from "react";
+import { projects, ProjectCategory } from "@/data/projects";
+import ProjectCard from "@/components/projects/ProjectCard";
+import TechMarquee from "@/components/sections/TechMarquee";
+import ExperienceTimeline from "@/components/sections/ExperienceTimeline";
+import Services from "@/components/sections/Services";
+import ContactCTA from "@/components/sections/ContactCTA";
+import { motion, AnimatePresence } from "framer-motion";
+
+export default function Home() {
+  const [filter, setFilter] = useState<ProjectCategory | "All">("All");
+
+  const categories: (ProjectCategory | "All")[] = [
+    "All",
+    "Full Stack",
+    "Mobile",
+    "Frontend",
+    "Backend",
+  ];
+
+  const filteredProjects = projects.filter((project) =>
+    filter === "All" ? true : project.category === filter
+  );
+
+  return (
+    <main
+      style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem 4rem" }}
+    >
+      {/* Hero Section */}
+      <section
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "85vh",
+          gap: "2.5rem",
+          textAlign: "center",
+          paddingTop: "2rem",
+        }}
+      >
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, type: "spring" }}
+          style={{
+            marginBottom: "1.5rem",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <div
+            style={{
+              width: "120px",
+              height: "120px",
+              borderRadius: "24px",
+              overflow: "hidden",
+              boxShadow: "0 0 40px -10px var(--color-primary-glow)",
+              border: "2px solid rgba(56, 189, 248, 0.3)",
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo.jpg"
+              alt="McDrac Logo"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+        >
+          <span
+            style={{
+              color: "var(--color-secondary)",
+              fontWeight: "700",
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              display: "block",
+              marginBottom: "1rem",
+            }}
+          >
+            Portfolio V2
+          </span>
+          <h1
+            style={{
+              fontSize: "clamp(2.5rem, 5vw, 4.5rem)",
+              lineHeight: 1.1,
+              marginBottom: "1.5rem",
+              background:
+                "linear-gradient(to right, #fff, var(--color-primary))",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              display: "inline-block",
+            }}
+          >
+            Desarrollador <br /> Full Stack & Mobile
+          </h1>
+          <p
+            style={{
+              maxWidth: "650px",
+              margin: "0 auto",
+              fontSize: "1.25rem",
+              color: "rgba(255,255,255,0.7)",
+              lineHeight: 1.6,
+            }}
+          >
+            Transformo ideas complejas en experiencias digitales fluidas, desde{" "}
+            <strong style={{ color: "var(--color-primary)" }}>Flutter</strong>{" "}
+            hasta{" "}
+            <strong style={{ color: "var(--color-secondary)" }}>Next.js</strong>
+            .
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
+          style={{
+            display: "flex",
+            gap: "1rem",
+            flexWrap: "wrap",
+            justifyContent: "center",
+          }}
+        >
+          <a
+            href="#contact"
+            style={{
+              padding: "1rem 2rem",
+              background: "var(--color-primary)",
+              color: "white",
+              borderRadius: "99px",
+              border: "none",
+              cursor: "pointer",
+              fontWeight: "700",
+              boxShadow: "0 0 20px -5px var(--color-primary-glow)",
+              fontSize: "1rem",
+            }}
+          >
+            Hablemos
+          </a>
+          <button
+            style={{
+              padding: "1rem 2rem",
+              background: "rgba(255,255,255,0.05)",
+              color: "white",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: "99px",
+              cursor: "pointer",
+              fontWeight: "600",
+              fontSize: "1rem",
+              backdropFilter: "blur(10px)",
+            }}
+          >
+            Descargar CV
+          </button>
+        </motion.div>
+      </section>
+
+      {/* Marquee Section */}
+      <div style={{ margin: "4rem 0" }}>
+        <TechMarquee />
+      </div>
+
+      <div
+        style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          padding: "0 1.5rem 4rem",
+        }}
+      >
+        {/* Services Section */}
+        <Services />
+
+        {/* Projects Grid Section */}
+        <section id="projects" style={{ paddingTop: "8rem" }}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2
+              style={{
+                fontSize: "2.5rem",
+                marginBottom: "3rem",
+                textAlign: "center",
+              }}
+            >
+              Selección de{" "}
+              <span style={{ color: "var(--color-primary)" }}>Proyectos</span>
+            </h2>
+
+            {/* Filters */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                gap: "1rem",
+                marginBottom: "3rem",
+                flexWrap: "wrap",
+              }}
+            >
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setFilter(cat)}
+                  style={{
+                    padding: "0.6rem 1.5rem",
+                    borderRadius: "99px",
+                    border: "none",
+                    cursor: "pointer",
+                    fontWeight: "600",
+                    fontSize: "0.95rem",
+                    transition: "all 0.3s ease",
+                    background:
+                      filter === cat
+                        ? "var(--color-primary)"
+                        : "var(--color-surface)",
+                    color: filter === cat ? "white" : "var(--color-foreground)",
+                    boxShadow:
+                      filter === cat
+                        ? "0 4px 15px -3px var(--color-primary-glow)"
+                        : "none",
+                  }}
+                >
+                  {cat === "All" ? "Todos" : cat}
+                </button>
+              ))}
+            </div>
+
+            <motion.div
+              layout
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+                gap: "2.5rem",
+                marginTop: "2rem",
+              }}
+            >
+              <AnimatePresence>
+                {filteredProjects.map((project) => (
+                  <motion.div
+                    layout
+                    key={project.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{
+                      opacity: 0,
+                      scale: 0.9,
+                      transition: { duration: 0.2 },
+                    }}
+                    transition={{ duration: 0.4 }}
+                  >
+                    <ProjectCard project={project} />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          </motion.div>
+        </section>
+
+        {/* Experience Section */}
+        <section style={{ marginTop: "8rem" }}>
+          <h2
+            style={{
+              fontSize: "2.5rem",
+              marginBottom: "3rem",
+              textAlign: "center",
+            }}
+          >
+            Trayectoria{" "}
+            <span style={{ color: "var(--color-secondary)" }}>Profesional</span>
+          </h2>
+          <ExperienceTimeline />
+        </section>
+
+        {/* Contact CTA */}
+        <div id="contact" style={{ marginTop: "4rem" }}>
+          <ContactCTA />
+        </div>
+      </div>
+    </main>
+  );
+}

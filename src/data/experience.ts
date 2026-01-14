@@ -9,26 +9,26 @@ export interface ExperienceItem {
 export const experiences: ExperienceItem[] = [
   {
     id: "1",
-    role: "Senior Flutter Developer",
-    company: "Tech Solutions Inc.",
-    period: "2023 - Presente",
+    role: "Lead Mobile Developer",
+    company: "Nextline",
+    period: "May 2024 - Presente",
     description:
-      "Liderando el desarrollo de aplicaciones móviles multiplataforma y migración de arquitectura a Clean Architecture + Bloc.",
+      "Liderazgo técnico en desarrollo móvil implementando metodología SCRUM y soporte bilingüe. Desarrollo exitoso de aplicaciones fintech internacionales para transferencias bancarias y gestión de core bancario como método de pago digital.",
   },
   {
     id: "2",
-    role: "Full Stack Developer",
-    company: "Digital Agency",
-    period: "2021 - 2023",
+    role: "Desarrollador de Software",
+    company: "Sheló NABEL",
+    period: "Abr 2022 - May 2024",
     description:
-      "Desarrollo de web apps con Next.js y APIs REST con Node.js. Implementación de pasarelas de pago y dashboards en tiempo real.",
+      "Desarrollo Web y Móvil. Lideré la migración estratégica de e-commerce a Flutter usando metodología Kanban, logrando optimizar el rendimiento, reducir costos de mantenimiento y mejorar drásticamente la experiencia de usuario.",
   },
   {
     id: "3",
-    role: "Mobile Developer",
-    company: "Startup Innovadora",
-    period: "2019 - 2021",
+    role: "Becario de Programación",
+    company: "Alive!",
+    period: "Dic 2019 - Sept 2021",
     description:
-      "Desarrollo inicial de MVP en Flutter y publicación en Play Store y App Store.",
+      "Implementación de proyectos de Software y Hardware enfocados en Hogares Inteligentes (IoT). Encargado de la documentación técnica de procesos y despliegue de soluciones.",
   },
 ];

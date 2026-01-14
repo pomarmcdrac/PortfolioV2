@@ -19,6 +19,8 @@ export const metadata: Metadata = {
 
 import Footer from "@/components/layout/Footer";
 import AmbientBackground from "@/components/ui/AmbientBackground";
+import LanguageToggle from "@/components/ui/LanguageToggle";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 export default function RootLayout({
   children,
@@ -36,11 +38,14 @@ export default function RootLayout({
           position: "relative",
         }}
       >
-        <AmbientBackground />
-        <div style={{ flex: 1, position: "relative", zIndex: 1 }}>
-          {children}
-        </div>
-        <Footer />
+        <LanguageProvider>
+          <AmbientBackground />
+          <LanguageToggle />
+          <div style={{ flex: 1, position: "relative", zIndex: 1 }}>
+            {children}
+          </div>
+          <Footer />
+        </LanguageProvider>
       </body>
     </html>
   );

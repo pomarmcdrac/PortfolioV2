@@ -8,8 +8,10 @@ import ExperienceTimeline from "@/components/sections/ExperienceTimeline";
 import Services from "@/components/sections/Services";
 import ContactCTA from "@/components/sections/ContactCTA";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function Home() {
+  const { t } = useLanguage();
   const [filter, setFilter] = useState<ProjectCategory | "All">("All");
 
   const categories: (ProjectCategory | "All")[] = [
@@ -25,12 +27,13 @@ export default function Home() {
   );
 
   return (
-    <main
-      style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem 4rem" }}
-    >
+    <main style={{ maxWidth: "100%", overflowX: "hidden" }}>
       {/* Hero Section */}
       <section
         style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          padding: "0 1.5rem",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -85,7 +88,7 @@ export default function Home() {
               marginBottom: "1rem",
             }}
           >
-            Portfolio V2
+            {t.hero.subtitle}
           </span>
           <h1
             style={{
@@ -99,7 +102,7 @@ export default function Home() {
               display: "inline-block",
             }}
           >
-            Desarrollador <br /> Full Stack & Mobile
+            {t.hero.title}
           </h1>
           <p
             style={{
@@ -110,9 +113,8 @@ export default function Home() {
               lineHeight: 1.6,
             }}
           >
-            Transformo ideas complejas en experiencias digitales fluidas, desde{" "}
-            <strong style={{ color: "var(--color-primary)" }}>Flutter</strong>{" "}
-            hasta{" "}
+            {t.hero.description}{" "}
+            <strong style={{ color: "var(--color-primary)" }}>Flutter</strong> &{" "}
             <strong style={{ color: "var(--color-secondary)" }}>Next.js</strong>
             .
           </p>
@@ -130,7 +132,7 @@ export default function Home() {
           }}
         >
           <a
-            href="#contact"
+            href="#projects"
             style={{
               padding: "1rem 2rem",
               background: "var(--color-primary)",
@@ -143,22 +145,37 @@ export default function Home() {
               fontSize: "1rem",
             }}
           >
-            Hablemos
+            {t.hero.ctaProject}
           </a>
-          <button
+          <a
+            href="/blog"
             style={{
               padding: "1rem 2rem",
-              background: "rgba(255,255,255,0.05)",
+              background: "rgba(255,255,255,0.1)",
               color: "white",
-              border: "1px solid rgba(255,255,255,0.1)",
               borderRadius: "99px",
+              border: "1px solid rgba(255,255,255,0.2)",
               cursor: "pointer",
               fontWeight: "600",
               fontSize: "1rem",
               backdropFilter: "blur(10px)",
             }}
           >
-            Descargar CV
+            {t.hero.ctaBlog}
+          </a>
+          <button
+            style={{
+              padding: "1rem 2rem",
+              background: "transparent",
+              color: "rgba(255,255,255,0.7)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: "99px",
+              cursor: "pointer",
+              fontWeight: "600",
+              fontSize: "1rem",
+            }}
+          >
+            {t.hero.ctaCV}
           </button>
         </motion.div>
       </section>
@@ -193,8 +210,7 @@ export default function Home() {
                 textAlign: "center",
               }}
             >
-              Selección de{" "}
-              <span style={{ color: "var(--color-primary)" }}>Proyectos</span>
+              {t.sections.projectsTitle}
             </h2>
 
             {/* Filters */}
@@ -230,7 +246,7 @@ export default function Home() {
                         : "none",
                   }}
                 >
-                  {cat === "All" ? "Todos" : cat}
+                  {cat === "All" ? t.sections.filterAll : cat}
                 </button>
               ))}
             </div>
@@ -275,8 +291,7 @@ export default function Home() {
               textAlign: "center",
             }}
           >
-            Trayectoria{" "}
-            <span style={{ color: "var(--color-secondary)" }}>Profesional</span>
+            {t.sections.experienceTitle}
           </h2>
           <ExperienceTimeline />
         </section>

@@ -1,6 +1,11 @@
+"use client";
+
 import { Mail, ArrowRight } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function ContactCTA() {
+  const { t } = useLanguage();
+
   return (
     <section
       style={{
@@ -31,7 +36,7 @@ export default function ContactCTA() {
           }}
         >
           <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
-            ¿Tienes un proyecto en mente?
+            {t.sections.contactTitle}
           </h2>
           <p
             style={{
@@ -40,8 +45,7 @@ export default function ContactCTA() {
               maxWidth: "600px",
             }}
           >
-            Estoy disponible para nuevos retos. Ya sea una app móvil, un sitio
-            web o asesoría técnica, hablemos.
+            {t.sections.contactDesc}
           </p>
 
           <div
@@ -69,7 +73,7 @@ export default function ContactCTA() {
               }}
             >
               <Mail size={20} />
-              Envíame un correo
+              {t.sections.contactBtn}
             </a>
 
             <a
@@ -90,7 +94,7 @@ export default function ContactCTA() {
                 transition: "background 0.2s",
               }}
             >
-              Conectar en LinkedIn <ArrowRight size={20} />
+              LinkedIn <ArrowRight size={20} />
             </a>
           </div>
         </div>

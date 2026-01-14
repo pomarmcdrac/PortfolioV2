@@ -1,46 +1,48 @@
+"use client";
+
 import styles from "./Services.module.css";
 import { Smartphone, Globe, Server, CheckCircle2 } from "lucide-react";
-
-const services = [
-  {
-    title: "Desarrollo Web Full Stack",
-    description:
-      "Sitios web modernos, rápidos y optimizados para SEO utilizando la última tecnología de Next.js y React.",
-    icon: <Globe size={28} />,
-    features: [
-      "Landing Pages Premium",
-      "Aplicaciones SaaS",
-      "E-commerce",
-      "Paneles de Administración",
-    ],
-  },
-  {
-    title: "Apps Móviles Multiplataforma",
-    description:
-      "Aplicaciones nativas para iOS y Android desde un único código base con Flutter. Fluidez y rendimiento garantizados.",
-    icon: <Smartphone size={28} />,
-    features: [
-      "Diseño UI/UX Nativo",
-      "Animaciones Fluidas",
-      "Integración Nativa",
-      "Publicación en Tiendas",
-    ],
-  },
-  {
-    title: "Backend & APIs",
-    description:
-      "Arquitecturas robustas y escalables para soportar tu negocio. Gestión de datos, seguridad y alto rendimiento.",
-    icon: <Server size={28} />,
-    features: [
-      "APIs RESTful / GraphQL",
-      "Bases de Datos SQL/NoSQL",
-      "Autenticación Segura",
-      "Integración Cloud",
-    ],
-  },
-];
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function Services() {
+  const { t } = useLanguage();
+
+  const services = [
+    {
+      title: t.services.fullstack.title,
+      description: t.services.fullstack.desc,
+      icon: <Globe size={28} />,
+      features: [
+        "Landing Pages Premium",
+        "Apps SaaS",
+        "E-commerce",
+        "Admin Panels",
+      ], // Podrías traducir esto también si quisieras
+    },
+    {
+      title: t.services.mobile.title,
+      description: t.services.mobile.desc,
+      icon: <Smartphone size={28} />,
+      features: [
+        "UI/UX Nativo",
+        "Animaciones",
+        "iOS & Android",
+        "Store Publish",
+      ],
+    },
+    {
+      title: t.services.backend.title,
+      description: t.services.backend.desc,
+      icon: <Server size={28} />,
+      features: [
+        "APIs REST/GraphQL",
+        "SQL/NoSQL",
+        "Auth Security",
+        "Cloud Scale",
+      ],
+    },
+  ];
+
   return (
     <section className={styles.servicesContainer}>
       <h2
@@ -50,7 +52,7 @@ export default function Services() {
           textAlign: "center",
         }}
       >
-        Mis <span style={{ color: "var(--color-secondary)" }}>Servicios</span>
+        {t.services.title}
       </h2>
       <p
         style={{
@@ -61,8 +63,7 @@ export default function Services() {
           fontSize: "1.1rem",
         }}
       >
-        Soluciones integrales para llevar tu idea al siguiente nivel, con código
-        limpio y arquitectura escalable.
+        {t.services.subtitle}
       </p>
 
       <div className={styles.grid}>

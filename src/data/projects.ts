@@ -4,48 +4,58 @@ export interface Project {
   id: string;
   title: string;
   description: string;
+  longDescription: string;
   category: ProjectCategory;
   techStack: string[];
-  imageUrl?: string; // Opcional por ahora, luego pondremos screenshots reales
-  repoUrl?: string;
-  liveUrl?: string;
+  imageUrl?: string;
+  repoUrl?: string; // Opcional
+  liveUrl?: string; // Opcional
 }
 
 export const projects: Project[] = [
   {
     id: "1",
-    title: "Flutter E-commerce App",
+    title: "Fintech Core Banking",
     description:
-      "Aplicación móvil de compras con animaciones fluidas, gestión de carrito y pasarela de pagos integrada. Enfoque en arquitectura limpia (Clean Architecture).",
+      "App móvil internacional para gestión de pagos digitales y transferencias bancarias.",
+    longDescription:
+      "Lideré el desarrollo de una solución fintech robusta que permite a usuarios internacionales realizar transferencias bancarias y gestionar un core bancario completo. El reto principal fue garantizar la seguridad de las transacciones y la fluidez de la UI en múltiples idiomas, implementando arquitecturas limpias y gestionando integraciones complejas con APIs bancarias.",
     category: "Mobile",
-    techStack: ["Flutter", "Dart", "Bloc", "Firebase"],
-    repoUrl: "https://github.com/tuusuario/proyecto",
+    techStack: ["Flutter", "Dart", "Clean Architecture", "Bloc", "Security"],
+    // repoUrl: "#", // Privado por ser bancario
+    liveUrl: "#",
   },
   {
     id: "2",
-    title: "Dashboard Analítico",
+    title: "E-commerce Super App",
     description:
-      "Panel de administración reactivo con gráficos en tiempo real y gestión de usuarios.",
-    category: "Frontend",
-    techStack: ["Next.js", "TypeScript", "Chart.js", "Tailwind"],
-    liveUrl: "https://demo.com",
+      "Migración y optimización de plataforma de ventas masiva a Flutter.",
+    longDescription:
+      "Proyecto estratégico de migración de una plataforma de ventas legacy a una arquitectura moderna en Flutter. Se logró una reducción significativa en tiempos de carga y costos de mantenimiento. Implementación de metodología Kanban para la gestión del ciclo de vida del software, resultando en una experiencia de usuario (UX) superior y aumento en la retención de clientes.",
+    category: "Full Stack",
+    techStack: ["Flutter", "Kanban", "Rest APIs", "Optimization"],
+    liveUrl: "https://shelonabel.com",
   },
   {
     id: "3",
-    title: "API RESTful de Reservas",
+    title: "Smart Home IoT System",
     description:
-      "Backend escalable para un sistema de reservas, con autenticación JWT, tests automatizados y documentación Swagger.",
+      "Sistema integral de control para Hogares Inteligentes (Software + Hardware).",
+    longDescription:
+      "Desarrollo e implementación de soluciones IoT para domótica. El proyecto abarcó desde la programación de controladores de hardware hasta la interfaz de usuario para el control de dispositivos inteligentes, enfocándose en la interoperabilidad y la facilidad de uso para el usuario final.",
     category: "Backend",
-    techStack: ["Node.js", "Express", "PostgreSQL", "Docker"],
-    repoUrl: "https://github.com/tuusuario/api",
+    techStack: ["IoT", "Hardware Control", "C++", "Mobile"],
   },
   {
     id: "4",
-    title: "Portfolio V2 (Este sitio)",
+    title: "Portfolio V2 (McDrac)",
     description:
-      "Sitio web personal con diseño premium, theme system y animaciones CSS.",
-    category: "Full Stack",
-    techStack: ["Next.js 15", "React", "TypeScript", "CSS Modules"],
-    liveUrl: "#",
+      "Sitio personal Premium con Next.js 15, i18n y animaciones avanzadas.",
+    longDescription:
+      "Este mismo sitio web. Un showcase de habilidades Frontend modernas utilizando Next.js App Router, Framer Motion para animaciones orquestadas, variables CSS dinámicas para theming y un sistema de internacionalización (i18n) ligero basado en React Context. Optimizado para SEO y performance (Lighthouse 100).",
+    category: "Frontend",
+    techStack: ["Next.js 15", "TypeScript", "Framer Motion", "CSS Modules"],
+    repoUrl: "https://github.com/pomarmcdrac/PortfolioV2",
+    liveUrl: "https://www.mcdrac.com",
   },
 ];

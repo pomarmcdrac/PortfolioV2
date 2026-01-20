@@ -34,6 +34,8 @@ export const translations = {
         "Entusiasmado por contribuir a proyectos destacados con habilidades técnicas sólidas.",
       contactBtn: "Hablemos",
       filterAll: "Todos",
+      noProjects: "Nuevos proyectos en fase de desarrollo y despliegue.",
+      noExperience: "Trayectoria profesional en proceso de actualización.",
     },
     nav: {
       home: "Inicio",
@@ -76,6 +78,8 @@ export const translations = {
         "Excited to contribute to outstanding projects with solid technical skills.",
       contactBtn: "Let's Talk",
       filterAll: "All",
+      noProjects: "New projects in development and deployment phase.",
+      noExperience: "Professional trajectory currently being updated.",
     },
     nav: {
       home: "Home",

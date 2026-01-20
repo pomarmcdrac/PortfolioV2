@@ -2,6 +2,7 @@
 
 import { Mail, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import ContactForm from "../forms/ContactForm";
 
 export default function ContactCTA() {
   const { t } = useLanguage();
@@ -22,6 +23,9 @@ export default function ContactCTA() {
           padding: "1px",
           borderRadius: "24px",
           boxShadow: "0 0 40px -10px var(--color-primary-glow)",
+          maxWidth: "700px",
+          width: "100%",
+          margin: "0 auto",
         }}
       >
         <div
@@ -32,71 +36,32 @@ export default function ContactCTA() {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: "1.5rem",
+            gap: "2.5rem",
+            maxWidth: "1000px",
+            width: "100%",
+            margin: "0 auto",
           }}
         >
-          <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
-            {t.sections.contactTitle}
-          </h2>
-          <p
-            style={{
-              fontSize: "1.2rem",
-              color: "rgba(255,255,255,0.7)",
-              maxWidth: "600px",
-            }}
-          >
-            {t.sections.contactDesc}
-          </p>
-
-          <div
-            style={{
-              display: "flex",
-              gap: "1rem",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              marginTop: "1rem",
-            }}
-          >
-            <a
-              href="mailto:tuemail@ejemplo.com"
+          <div style={{ textAlign: "center", maxWidth: "600px" }}>
+            <h2
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                padding: "1rem 2rem",
-                background: "var(--color-primary)",
-                color: "white",
-                borderRadius: "99px",
-                fontWeight: "700",
-                fontSize: "1.1rem",
-                boxShadow: "0 4px 20px rgba(56, 189, 248, 0.4)",
+                fontSize: "clamp(2rem, 4vw, 3rem)",
+                marginBottom: "1rem",
               }}
             >
-              <Mail size={20} />
-              {t.sections.contactBtn}
-            </a>
-
-            <a
-              href="https://linkedin.com"
-              target="_blank"
-              rel="noopener noreferrer"
+              {t.sections.contactTitle}
+            </h2>
+            <p
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                padding: "1rem 2rem",
-                background: "transparent",
-                border: "1px solid rgba(255,255,255,0.2)",
-                color: "white",
-                borderRadius: "99px",
-                fontWeight: "600",
-                fontSize: "1.1rem",
-                transition: "background 0.2s",
+                fontSize: "1.2rem",
+                color: "rgba(255,255,255,0.7)",
               }}
             >
-              LinkedIn <ArrowRight size={20} />
-            </a>
+              {t.sections.contactDesc}
+            </p>
           </div>
+
+          <ContactForm />
         </div>
       </div>
     </section>

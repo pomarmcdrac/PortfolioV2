@@ -10,8 +10,8 @@
   mask-image: linear-gradient(
     to right,
     transparent,
-    black 10%,
-    black 90%,
+    black 5%,
+    black 95%,
     transparent
   );
 }
@@ -19,22 +19,52 @@
 .marqueeTrack {
   display: flex;
   gap: 4rem;
-  animation: scroll 25s linear infinite;
+  animation: scroll 40s linear infinite;
   white-space: nowrap;
 }
 
 .techItem {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.5);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  transition: color 0.3s ease;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  transition: all 0.3s ease;
+  min-width: 160px; /* Tamaño definido para cada elemento */
+  justify-content: center;
 }
 
-.techItem:hover {
-  color: var(--color-secondary);
+.skillIcon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  filter: grayscale(1) brightness(1.2);
+  opacity: 0.7; /* Subimos la opacidad para que no se pierda */
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.skillName {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+}
+
+.dot {
+  color: var(--color-primary);
+  font-size: 1.5rem;
+}
+
+.techItem:hover .skillIcon {
+  filter: grayscale(0) brightness(1);
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.techItem:hover .skillName {
+  color: white;
 }
 
 @keyframes scroll {

@@ -1,18 +1,48 @@
 "use client";
 
 import { useState } from "react";
-import { projects, ProjectCategory } from "@/data/projects";
+import {
+  projects as staticProjects,
+  ProjectCategory,
+  Project,
+} from "@/data/projects";
 import ProjectCard from "@/components/projects/ProjectCard";
 import TechMarquee from "@/components/sections/TechMarquee";
+import { getProjects } from "@/lib/api";
 import ExperienceTimeline from "@/components/sections/ExperienceTimeline";
 import Services from "@/components/sections/Services";
 import ContactCTA from "@/components/sections/ContactCTA";
 import { motion, AnimatePresence } from "framer-motion";
+import { Rocket } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import { useEffect } from "react";
 
 export default function Home() {
   const { t } = useLanguage();
   const [filter, setFilter] = useState<ProjectCategory | "All">("All");
+  const [projectsList, setProjectsList] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isApiOffline, setIsApiOffline] = useState(false);
+
+  useEffect(() => {
+    async function loadProjects() {
+      setLoading(true);
+      try {
+        const data = await getProjects();
+        // Si la API responde (incluso si está vacía), confiamos en ella
+        setProjectsList(data);
+        setIsApiOffline(false);
+      } catch (error) {
+        // Solo si falla la conexión usamos los estáticos como respaldo
+        console.warn("API Offline: Usando datos estáticos como respaldo.");
+        setProjectsList(staticProjects);
+        setIsApiOffline(true);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadProjects();
+  }, []);
 
   const categories: (ProjectCategory | "All")[] = [
     "All",
@@ -22,8 +52,8 @@ export default function Home() {
     "Backend",
   ];
 
-  const filteredProjects = projects.filter((project) =>
-    filter === "All" ? true : project.category === filter
+  const filteredProjects = projectsList.filter((project) =>
+    filter === "All" ? true : project.category === filter,
   );
 
   return (
@@ -261,22 +291,73 @@ export default function Home() {
               }}
             >
               <AnimatePresence>
-                {filteredProjects.map((project) => (
-                  <motion.div
-                    layout
-                    key={project.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{
-                      opacity: 0,
-                      scale: 0.9,
-                      transition: { duration: 0.2 },
-                    }}
-                    transition={{ duration: 0.4 }}
-                  >
-                    <ProjectCard project={project} />
-                  </motion.div>
-                ))}
+                {filteredProjects.length > 0
+                  ? filteredProjects.map((project) => (
+                      <motion.div
+                        layout
+                        key={project.id}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{
+                          opacity: 0,
+                          scale: 0.9,
+                          transition: { duration: 0.2 },
+                        }}
+                        transition={{ duration: 0.4 }}
+                      >
+                        <ProjectCard project={project} />
+                      </motion.div>
+                    ))
+                  : !loading && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        style={{
+                          gridColumn: "1 / -1",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: "1.5rem",
+                          padding: "6rem 2rem",
+                          background: "rgba(255, 255, 255, 0.03)",
+                          borderRadius: "24px",
+                          border: "1px dashed rgba(255, 255, 255, 0.1)",
+                          textAlign: "center",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "64px",
+                            height: "64px",
+                            borderRadius: "50%",
+                            background: "rgba(0, 242, 255, 0.1)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "#00f2ff",
+                            marginBottom: "0.5rem",
+                          }}
+                        >
+                          <Rocket size={32} />
+                        </div>
+                        <div>
+                          <h3
+                            style={{
+                              fontSize: "1.2rem",
+                              color: "white",
+                              marginBottom: "0.5rem",
+                            }}
+                          >
+                            {t.sections.noProjects}
+                          </h3>
+                          <p style={{ color: "rgba(255,255,255,0.5)" }}>
+                            {isApiOffline
+                              ? "Sincronizando con el servidor de respaldo..."
+                              : "Nuevas soluciones tecnológicas en proceso de creación."}
+                          </p>
+                        </div>
+                      </motion.div>
+                    )}
               </AnimatePresence>
             </motion.div>
           </motion.div>

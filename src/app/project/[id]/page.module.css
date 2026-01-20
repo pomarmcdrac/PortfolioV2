@@ -1,0 +1,38 @@
+.projectGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 4rem;
+  margin-top: 1rem;
+}
+
+.hoverBackBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.6);
+  transition: all 0.2s ease;
+  padding: 0.5rem 1rem;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+}
+
+.hoverBackBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .projectGrid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+}
+
+.galleryContainer::-webkit-scrollbar {
+  display: none;
+}
+.galleryContainer {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

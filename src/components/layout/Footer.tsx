@@ -29,7 +29,7 @@ export default function Footer() {
         {/* Social Links */}
         <div style={{ display: "flex", gap: "1.5rem" }}>
           <a
-            href="https://github.com"
+            href="https://github.com/pomarmcdrac"
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -43,7 +43,7 @@ export default function Footer() {
             GitHub
           </a>
           <a
-            href="https://linkedin.com"
+            href="https://linkedin.com/in/omaramorales"
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -55,18 +55,6 @@ export default function Footer() {
             onMouseOut={(e) => (e.currentTarget.style.opacity = "0.7")}
           >
             LinkedIn
-          </a>
-          <a
-            href="mailto:tuemail@ejemplo.com"
-            style={{
-              opacity: 0.7,
-              transition: "opacity 0.2s",
-              color: "var(--color-foreground)",
-            }}
-            onMouseOver={(e) => (e.currentTarget.style.opacity = "1")}
-            onMouseOut={(e) => (e.currentTarget.style.opacity = "0.7")}
-          >
-            Email
           </a>
         </div>
 

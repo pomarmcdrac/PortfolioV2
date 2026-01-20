@@ -66,6 +66,23 @@ export default function ProjectCard({ project }: ProjectCardProps) {
               Ver Demo &rarr;
             </a>
           )}
+          {!project.repoUrl && !project.liveUrl && project.isConfidential && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                padding: "0.5rem 0.75rem",
+                fontSize: "0.85rem",
+                color: "rgba(255,255,255,0.6)",
+                background: "rgba(255,255,255,0.05)",
+                borderRadius: "8px",
+                border: "1px solid rgba(255,255,255,0.1)",
+              }}
+            >
+              🔒 Proyecto bajo NDA
+            </div>
+          )}
         </div>
       </div>
     </div>

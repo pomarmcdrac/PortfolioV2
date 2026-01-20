@@ -14,13 +14,13 @@ import { Briefcase } from "lucide-react";
 export default function ExperienceTimeline() {
   const [experienceList, setExperienceList] = useState<ExperienceItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     async function loadExperience() {
       setLoading(true);
       try {
-        const data = await getExperience();
+        const data = await getExperience(language);
         setExperienceList(data);
       } catch (error) {
         console.warn("API Offline: Usando trayectoria estática de respaldo.");
@@ -30,7 +30,7 @@ export default function ExperienceTimeline() {
       }
     }
     loadExperience();
-  }, []);
+  }, [language]);
 
   return (
     <div className={styles.timelineContainer}>

@@ -14,10 +14,13 @@ const AUTH_URL = "/api/auth/login";
 /**
  * Fetches all projects from the API.
  */
-export async function getProjects(): Promise<Project[]> {
+export async function getProjects(lang?: string): Promise<Project[]> {
   const baseUrl = getBaseUrl();
   try {
-    const response = await fetch(`${baseUrl}/projects`, {
+    const url = new URL(`${baseUrl}/projects`);
+    if (lang) url.searchParams.append("lang", lang.toLowerCase());
+
+    const response = await fetch(url.toString(), {
       next: { revalidate: 3600 },
     });
 
@@ -32,6 +35,8 @@ export async function getProjects(): Promise<Project[]> {
       ...p,
       techStack: p.technologies || [],
       repoUrl: p.githubUrl,
+      // Si la API devuelve el contenido localizado en title/description/longDescription
+      // según el parámetro lang, no necesitamos mapear titleEs, etc. manualmente aquí.
     }));
   } catch (error) {
     console.error("Error fetching projects:", error);
@@ -42,10 +47,13 @@ export async function getProjects(): Promise<Project[]> {
 /**
  * Fetches all experience items from the API.
  */
-export async function getExperience(): Promise<ExperienceItem[]> {
+export async function getExperience(lang?: string): Promise<ExperienceItem[]> {
   const baseUrl = getBaseUrl();
   try {
-    const response = await fetch(`${baseUrl}/experience`, {
+    const url = new URL(`${baseUrl}/experience`);
+    if (lang) url.searchParams.append("lang", lang.toLowerCase());
+
+    const response = await fetch(url.toString(), {
       next: { revalidate: 3600 },
     });
 
@@ -110,10 +118,16 @@ export async function deleteExperience(id: string): Promise<boolean> {
 /**
  * Fetches a single project by ID.
  */
-export async function getProjectById(id: string): Promise<Project | null> {
+export async function getProjectById(
+  id: string,
+  lang?: string,
+): Promise<Project | null> {
   const baseUrl = getBaseUrl();
   try {
-    const response = await fetch(`${baseUrl}/projects/${id}`, {
+    const url = new URL(`${baseUrl}/projects/${id}`);
+    if (lang) url.searchParams.append("lang", lang.toLowerCase());
+
+    const response = await fetch(url.toString(), {
       next: { revalidate: 3600 },
     });
 
@@ -176,10 +190,13 @@ export async function getSkillsFull(): Promise<any[]> {
 /**
  * Fetches about information from the API.
  */
-export async function getAbout(): Promise<any> {
+export async function getAbout(lang?: string): Promise<any> {
   const baseUrl = getBaseUrl();
   try {
-    const response = await fetch(`${baseUrl}/about`, {
+    const url = new URL(`${baseUrl}/about`);
+    if (lang) url.searchParams.append("lang", lang.toLowerCase());
+
+    const response = await fetch(url.toString(), {
       next: { revalidate: 3600 },
     });
 
@@ -253,9 +270,7 @@ export async function sendEmail(data: {
 const getAuthHeader = (): Record<string, string> => {
   if (typeof window === "undefined") return {};
   const token = localStorage.getItem("auth_token");
-  // Assuming language might be stored in localStorage by the context in the future
-  // or we can manually set it. For now, let's try to read it.
-  const lang = localStorage.getItem("language") || "ES";
+  const lang = localStorage.getItem("language") || "es";
 
   return {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -406,10 +421,13 @@ export async function deleteSkill(id: string): Promise<boolean> {
 /**
  * Fetch all blogs
  */
-export async function getBlogs(): Promise<any[]> {
+export async function getBlogs(lang?: string): Promise<any[]> {
   const baseUrl = getBaseUrl();
   try {
-    const response = await fetch(`${baseUrl}/blogs`, {
+    const url = new URL(`${baseUrl}/blogs`);
+    if (lang) url.searchParams.append("lang", lang.toLowerCase());
+
+    const response = await fetch(url.toString(), {
       next: { revalidate: 3600 },
       headers: { ...getAuthHeader() },
     });

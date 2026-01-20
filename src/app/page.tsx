@@ -18,7 +18,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useEffect } from "react";
 
 export default function Home() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [filter, setFilter] = useState<ProjectCategory | "All">("All");
   const [projectsList, setProjectsList] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,8 +30,8 @@ export default function Home() {
       setLoading(true);
       try {
         const [projectsData, aboutInfo] = await Promise.all([
-          getProjects(),
-          getAbout(),
+          getProjects(language),
+          getAbout(language),
         ]);
 
         // Si la API responde (incluso si está vacía), confiamos en ella
@@ -48,7 +48,7 @@ export default function Home() {
       }
     }
     loadData();
-  }, []);
+  }, [language]);
 
   const categories: (ProjectCategory | "All")[] = [
     "All",

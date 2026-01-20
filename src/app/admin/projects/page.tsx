@@ -40,8 +40,11 @@ export default function AdminProjects() {
   // Form state
   const [formData, setFormData] = useState({
     title: "",
+    titleEs: "",
     description: "",
+    descriptionEs: "",
     longDescription: "",
+    longDescriptionEs: "",
     category: "Frontend",
     technologies: "",
     githubUrl: "",
@@ -57,7 +60,7 @@ export default function AdminProjects() {
 
   async function loadProjects() {
     setLoading(true);
-    const data = await getProjects();
+    const data = await getProjects("es"); // Admin default to 'es' for list
     setProjects(data);
     setLoading(false);
   }
@@ -84,6 +87,7 @@ export default function AdminProjects() {
     e.preventDefault();
     const payload = {
       ...formData,
+      order: Number(formData.order),
       technologies: formData.technologies.split(",").map((t) => t.trim()),
     };
 
@@ -91,8 +95,11 @@ export default function AdminProjects() {
     if (success) {
       setFormData({
         title: "",
+        titleEs: "",
         description: "",
+        descriptionEs: "",
         longDescription: "",
+        longDescriptionEs: "",
         category: "Frontend",
         technologies: "",
         githubUrl: "",
@@ -147,34 +154,87 @@ export default function AdminProjects() {
             onSubmit={handleSubmit}
             style={{ display: "grid", gap: "1rem" }}
           >
-            <input
-              placeholder="Título"
-              value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-              required
-              style={baseInputStyle}
-            />
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "1rem",
+              }}
+            >
+              <input
+                placeholder="Título (EN)"
+                value={formData.title}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
+                required
+                style={baseInputStyle}
+              />
+              <input
+                placeholder="Título (ES)"
+                value={formData.titleEs}
+                onChange={(e) =>
+                  setFormData({ ...formData, titleEs: e.target.value })
+                }
+                required
+                style={baseInputStyle}
+              />
+            </div>
 
-            <textarea
-              placeholder="Descripción corta"
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-              required
-              style={baseInputStyle}
-            />
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "1rem",
+              }}
+            >
+              <textarea
+                placeholder="Short Description (EN)"
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                required
+                style={baseInputStyle}
+              />
+              <textarea
+                placeholder="Descripción corta (ES)"
+                value={formData.descriptionEs}
+                onChange={(e) =>
+                  setFormData({ ...formData, descriptionEs: e.target.value })
+                }
+                required
+                style={baseInputStyle}
+              />
+            </div>
 
-            <textarea
-              placeholder="Descripción larga"
-              value={formData.longDescription}
-              onChange={(e) =>
-                setFormData({ ...formData, longDescription: e.target.value })
-              }
-              style={{ ...baseInputStyle, minHeight: "100px" }}
-            />
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "1rem",
+              }}
+            >
+              <textarea
+                placeholder="Long Description (EN)"
+                value={formData.longDescription}
+                onChange={(e) =>
+                  setFormData({ ...formData, longDescription: e.target.value })
+                }
+                style={{ ...baseInputStyle, minHeight: "80px" }}
+              />
+              <textarea
+                placeholder="Descripción larga (ES)"
+                value={formData.longDescriptionEs}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    longDescriptionEs: e.target.value,
+                  })
+                }
+                style={{ ...baseInputStyle, minHeight: "80px" }}
+              />
+            </div>
 
             <div
               style={{
@@ -228,6 +288,42 @@ export default function AdminProjects() {
                 }
                 style={baseInputStyle}
               />
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "1rem",
+                alignItems: "center",
+              }}
+            >
+              <input
+                type="number"
+                placeholder="Orden"
+                value={formData.order}
+                onChange={(e) =>
+                  setFormData({ ...formData, order: Number(e.target.value) })
+                }
+                style={baseInputStyle}
+              />
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  cursor: "pointer",
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={formData.featured}
+                  onChange={(e) =>
+                    setFormData({ ...formData, featured: e.target.checked })
+                  }
+                />
+                Destacado (Featured)
+              </label>
             </div>
 
             <div

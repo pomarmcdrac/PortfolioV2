@@ -10,6 +10,7 @@ export interface Project {
   imageUrl?: string;
   repoUrl?: string; // Opcional
   liveUrl?: string; // Opcional
+  isConfidential?: boolean; // Indica si el proyecto tiene restricciones de confidencialidad
 }
 
 export const projects: Project[] = [
@@ -22,8 +23,7 @@ export const projects: Project[] = [
       "Lideré el desarrollo de una solución fintech robusta que permite a usuarios internacionales realizar transferencias bancarias y gestionar un core bancario completo. El reto principal fue garantizar la seguridad de las transacciones y la fluidez de la UI en múltiples idiomas, implementando arquitecturas limpias y gestionando integraciones complejas con APIs bancarias.",
     category: "Mobile",
     techStack: ["Flutter", "Dart", "Clean Architecture", "Bloc", "Security"],
-    // repoUrl: "#", // Privado por ser bancario
-    liveUrl: "#",
+    isConfidential: true, // Proyecto bajo NDA
   },
   {
     id: "2",
@@ -45,6 +45,7 @@ export const projects: Project[] = [
       "Desarrollo e implementación de soluciones IoT para domótica. El proyecto abarcó desde la programación de controladores de hardware hasta la interfaz de usuario para el control de dispositivos inteligentes, enfocándose en la interoperabilidad y la facilidad de uso para el usuario final.",
     category: "Backend",
     techStack: ["IoT", "Hardware Control", "C++", "Mobile"],
+    isConfidential: true, // Proyecto bajo NDA
   },
   {
     id: "4",

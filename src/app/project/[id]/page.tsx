@@ -4,6 +4,7 @@ import Image from "next/image";
 import { ArrowLeft, Github, ExternalLink, Calendar, Hash } from "lucide-react";
 import { getProjectById } from "@/lib/api";
 import styles from "./page.module.css";
+import { cookies } from "next/headers";
 
 export default async function ProjectPage({
   params,
@@ -11,9 +12,11 @@ export default async function ProjectPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const cookieStore = await cookies();
+  const lang = cookieStore.get("language")?.value || "es";
 
   // Intentar obtener de la API
-  let project = await getProjectById(id);
+  let project = await getProjectById(id, lang);
 
   // Fallback a datos estáticos si no se encuentra en la API
   if (!project) {
@@ -285,6 +288,45 @@ export default async function ProjectPage({
                   Ver Código
                 </a>
               )}
+            </div>
+          )}
+
+          {/* Confidential Project Notice */}
+          {!hasLinks && project.isConfidential && (
+            <div
+              style={{
+                padding: "1.5rem",
+                background: "rgba(255,255,255,0.03)",
+                borderRadius: "16px",
+                border: "1px solid rgba(255,255,255,0.1)",
+              }}
+            >
+              <h4
+                style={{
+                  fontSize: "1rem",
+                  color: "rgba(255,255,255,0.5)",
+                  marginBottom: "0.75rem",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                  fontWeight: "600",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                }}
+              >
+                🔒 Proyecto Confidencial
+              </h4>
+              <p
+                style={{
+                  fontSize: "0.9rem",
+                  lineHeight: "1.6",
+                  color: "rgba(255,255,255,0.7)",
+                }}
+              >
+                Este proyecto fue desarrollado bajo un acuerdo de
+                confidencialidad (NDA). Por razones de privacidad del cliente,
+                no puedo compartir enlaces públicos ni código fuente.
+              </p>
             </div>
           )}
         </aside>

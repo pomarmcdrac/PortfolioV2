@@ -34,8 +34,11 @@ export default function AdminAbout() {
       const data = await getAbout();
       if (data) {
         setValue("title", data.title);
+        setValue("titleEs", data.titleEs);
         setValue("subtitle", data.subtitle);
+        setValue("subtitleEs", data.subtitleEs);
         setValue("description", data.description);
+        setValue("descriptionEs", data.descriptionEs);
       }
     } catch (error) {
       console.error(error);
@@ -99,42 +102,115 @@ export default function AdminAbout() {
           onSubmit={handleSubmit(onSubmit)}
           style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
         >
-          <div>
-            <label style={{ display: "block", marginBottom: "0.5rem" }}>
-              Subtítulo (Label pequeño)
-            </label>
-            <input
-              {...register("subtitle")}
-              style={inputStyle}
-              placeholder="Ej. FULL STACK DEVELOPER"
-            />
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "1rem",
+            }}
+          >
+            <div>
+              <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                Subtítulo (EN)
+              </label>
+              <input
+                {...register("subtitle")}
+                style={inputStyle}
+                placeholder="Ej. FULL STACK DEVELOPER"
+                maxLength={100}
+              />
+            </div>
+            <div>
+              <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                Subtítulo (ES)
+              </label>
+              <input
+                {...register("subtitleEs")}
+                style={inputStyle}
+                placeholder="Ej. DESARROLLADOR FULL STACK"
+                maxLength={100}
+              />
+            </div>
           </div>
 
-          <div>
-            <label style={{ display: "block", marginBottom: "0.5rem" }}>
-              Título Principal
-            </label>
-            <input
-              {...register("title", { required: true })}
-              style={{ ...inputStyle, fontSize: "1.2rem", fontWeight: "bold" }}
-              placeholder="Ej. Creando experiencias digitales..."
-            />
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "1rem",
+            }}
+          >
+            <div>
+              <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                Título Principal (EN)
+              </label>
+              <input
+                {...register("title", { required: true })}
+                style={{
+                  ...inputStyle,
+                  fontSize: "1.2rem",
+                  fontWeight: "bold",
+                }}
+                placeholder="Ej. Creating digital experiences..."
+                maxLength={100}
+              />
+            </div>
+            <div>
+              <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                Título Principal (ES)
+              </label>
+              <input
+                {...register("titleEs", { required: true })}
+                style={{
+                  ...inputStyle,
+                  fontSize: "1.2rem",
+                  fontWeight: "bold",
+                }}
+                placeholder="Ej. Creando experiencias digitales..."
+                maxLength={100}
+              />
+            </div>
           </div>
 
-          <div>
-            <label style={{ display: "block", marginBottom: "0.5rem" }}>
-              Descripción Biográfica
-            </label>
-            <textarea
-              {...register("description", { required: true })}
-              style={{
-                ...inputStyle,
-                minHeight: "200px",
-                resize: "vertical",
-                lineHeight: "1.6",
-              }}
-              placeholder="Escribe tu biografía o resumen profesional aquí..."
-            />
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "1rem",
+            }}
+          >
+            <div>
+              <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                Biografía (EN)
+              </label>
+              <textarea
+                {...register("description", { required: true })}
+                style={{
+                  ...inputStyle,
+                  minHeight: "200px",
+                  resize: "vertical",
+                  lineHeight: "1.6",
+                }}
+                placeholder="Write your biography in English..."
+                maxLength={5000}
+              />
+            </div>
+            <div>
+              <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                Biografía (ES)
+              </label>
+              <textarea
+                {...register("descriptionEs", { required: true })}
+                style={{
+                  ...inputStyle,
+                  minHeight: "200px",
+                  resize: "vertical",
+                  lineHeight: "1.6",
+                }}
+                placeholder="Escribe tu biografía en español..."
+                maxLength={5000}
+              />
+            </div>
           </div>
 
           <button

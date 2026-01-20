@@ -10,6 +10,8 @@ import {
 import { Project } from "@/data/projects";
 import { Plus, Trash2, Github, ExternalLink } from "lucide-react";
 
+import { useRouter } from "next/navigation";
+
 const baseInputStyle = {
   width: "100%",
   padding: "0.8rem",
@@ -36,6 +38,7 @@ const selectStyle: any = {
 export default function AdminProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   // Form state
   const [formData, setFormData] = useState({
@@ -55,14 +58,25 @@ export default function AdminProjects() {
   });
 
   useEffect(() => {
+    // Check auth
+    if (typeof window !== "undefined" && !localStorage.getItem("auth_token")) {
+      router.push("/admin");
+      return;
+    }
+
     loadProjects();
-  }, []);
+  }, [router]);
 
   async function loadProjects() {
     setLoading(true);
-    const data = await getProjects("es"); // Admin default to 'es' for list
-    setProjects(data);
-    setLoading(false);
+    try {
+      const data = await getProjects("es"); // Admin default to 'es' for list
+      setProjects(data);
+    } catch (error) {
+      console.error("Error loading projects:", error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   const handleDelete = async (id: string) => {
@@ -168,6 +182,7 @@ export default function AdminProjects() {
                   setFormData({ ...formData, title: e.target.value })
                 }
                 required
+                maxLength={100}
                 style={baseInputStyle}
               />
               <input
@@ -177,6 +192,7 @@ export default function AdminProjects() {
                   setFormData({ ...formData, titleEs: e.target.value })
                 }
                 required
+                maxLength={100}
                 style={baseInputStyle}
               />
             </div>
@@ -195,6 +211,7 @@ export default function AdminProjects() {
                   setFormData({ ...formData, description: e.target.value })
                 }
                 required
+                maxLength={300}
                 style={baseInputStyle}
               />
               <textarea
@@ -204,6 +221,7 @@ export default function AdminProjects() {
                   setFormData({ ...formData, descriptionEs: e.target.value })
                 }
                 required
+                maxLength={300}
                 style={baseInputStyle}
               />
             </div>
@@ -221,6 +239,7 @@ export default function AdminProjects() {
                 onChange={(e) =>
                   setFormData({ ...formData, longDescription: e.target.value })
                 }
+                maxLength={5000}
                 style={{ ...baseInputStyle, minHeight: "80px" }}
               />
               <textarea
@@ -232,6 +251,7 @@ export default function AdminProjects() {
                     longDescriptionEs: e.target.value,
                   })
                 }
+                maxLength={5000}
                 style={{ ...baseInputStyle, minHeight: "80px" }}
               />
             </div>
@@ -261,6 +281,7 @@ export default function AdminProjects() {
                 onChange={(e) =>
                   setFormData({ ...formData, technologies: e.target.value })
                 }
+                maxLength={200}
                 style={baseInputStyle}
               />
             </div>
@@ -278,6 +299,7 @@ export default function AdminProjects() {
                 onChange={(e) =>
                   setFormData({ ...formData, githubUrl: e.target.value })
                 }
+                maxLength={255}
                 style={baseInputStyle}
               />
               <input
@@ -286,6 +308,7 @@ export default function AdminProjects() {
                 onChange={(e) =>
                   setFormData({ ...formData, liveUrl: e.target.value })
                 }
+                maxLength={255}
                 style={baseInputStyle}
               />
             </div>

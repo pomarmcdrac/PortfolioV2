@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getBlogs, createBlog, deleteBlog } from "@/lib/api";
 import { Plus, Trash2, ExternalLink } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 // Estilos de inputs (reutilizados del estándar)
 const baseInputStyle: any = {
@@ -20,26 +21,41 @@ const baseInputStyle: any = {
 export default function AdminBlog() {
   const [blogs, setBlogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   // Form state
   const [formData, setFormData] = useState({
     title: "",
+    titleEs: "",
     slug: "",
     date: new Date().toISOString().split("T")[0],
     excerpt: "",
+    excerptEs: "",
     tags: "",
     content: "",
+    contentEs: "",
   });
 
   useEffect(() => {
+    // Check auth
+    if (typeof window !== "undefined" && !localStorage.getItem("auth_token")) {
+      router.push("/admin");
+      return;
+    }
+
     loadBlogs();
-  }, []);
+  }, [router]);
 
   async function loadBlogs() {
     setLoading(true);
-    const data = await getBlogs();
-    setBlogs(data);
-    setLoading(false);
+    try {
+      const data = await getBlogs();
+      setBlogs(data);
+    } catch (error) {
+      console.error("Error loading blogs:", error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   const handleDelete = async (id: string) => {
@@ -70,11 +86,14 @@ export default function AdminBlog() {
     if (success) {
       setFormData({
         title: "",
+        titleEs: "",
         slug: "",
         date: new Date().toISOString().split("T")[0],
         excerpt: "",
+        excerptEs: "",
         tags: "",
         content: "",
+        contentEs: "",
       });
       loadBlogs();
     } else {
@@ -120,15 +139,34 @@ export default function AdminBlog() {
             onSubmit={handleSubmit}
             style={{ display: "grid", gap: "1rem" }}
           >
-            <input
-              placeholder="Título del Post"
-              value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-              required
-              style={baseInputStyle}
-            />
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "1rem",
+              }}
+            >
+              <input
+                placeholder="Título (EN)"
+                value={formData.title}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
+                required
+                maxLength={100}
+                style={baseInputStyle}
+              />
+              <input
+                placeholder="Título (ES)"
+                value={formData.titleEs}
+                onChange={(e) =>
+                  setFormData({ ...formData, titleEs: e.target.value })
+                }
+                required
+                maxLength={100}
+                style={baseInputStyle}
+              />
+            </div>
 
             <div
               style={{
@@ -143,6 +181,7 @@ export default function AdminBlog() {
                 onChange={(e) =>
                   setFormData({ ...formData, slug: e.target.value })
                 }
+                maxLength={100}
                 style={baseInputStyle}
               />
               <input
@@ -162,32 +201,75 @@ export default function AdminBlog() {
               onChange={(e) =>
                 setFormData({ ...formData, tags: e.target.value })
               }
+              maxLength={100}
               style={baseInputStyle}
             />
 
-            <textarea
-              placeholder="Extracto (breve resumen)"
-              value={formData.excerpt}
-              onChange={(e) =>
-                setFormData({ ...formData, excerpt: e.target.value })
-              }
-              required
-              style={{ ...baseInputStyle, minHeight: "80px" }}
-            />
-
-            <textarea
-              placeholder="Contenido (Markdown soportado)"
-              value={formData.content}
-              onChange={(e) =>
-                setFormData({ ...formData, content: e.target.value })
-              }
-              required
+            <div
               style={{
-                ...baseInputStyle,
-                minHeight: "300px",
-                fontFamily: "monospace",
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "1rem",
               }}
-            />
+            >
+              <textarea
+                placeholder="Extracto (EN)"
+                value={formData.excerpt}
+                onChange={(e) =>
+                  setFormData({ ...formData, excerpt: e.target.value })
+                }
+                required
+                maxLength={300}
+                style={{ ...baseInputStyle, minHeight: "80px" }}
+              />
+              <textarea
+                placeholder="Extracto (ES)"
+                value={formData.excerptEs}
+                onChange={(e) =>
+                  setFormData({ ...formData, excerptEs: e.target.value })
+                }
+                required
+                maxLength={300}
+                style={{ ...baseInputStyle, minHeight: "80px" }}
+              />
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "1rem",
+              }}
+            >
+              <textarea
+                placeholder="Contenido (EN - Markdown)"
+                value={formData.content}
+                onChange={(e) =>
+                  setFormData({ ...formData, content: e.target.value })
+                }
+                required
+                maxLength={10000}
+                style={{
+                  ...baseInputStyle,
+                  minHeight: "300px",
+                  fontFamily: "monospace",
+                }}
+              />
+              <textarea
+                placeholder="Contenido (ES - Markdown)"
+                value={formData.contentEs}
+                onChange={(e) =>
+                  setFormData({ ...formData, contentEs: e.target.value })
+                }
+                required
+                maxLength={10000}
+                style={{
+                  ...baseInputStyle,
+                  minHeight: "300px",
+                  fontFamily: "monospace",
+                }}
+              />
+            </div>
 
             <button
               type="submit"

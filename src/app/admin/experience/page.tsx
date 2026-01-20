@@ -106,15 +106,35 @@ export default function AdminExperience() {
             onSubmit={handleSubmit(onSubmit)}
             style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
           >
-            <div>
-              <label style={{ display: "block", marginBottom: "0.5rem" }}>
-                Puesto / Rol
-              </label>
-              <input
-                {...register("position", { required: true })}
-                style={inputStyle}
-                placeholder="Ej. Senior Frontend Dev"
-              />
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "1rem",
+              }}
+            >
+              <div>
+                <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                  Puesto / Rol (EN)
+                </label>
+                <input
+                  {...register("position", { required: true })}
+                  style={inputStyle}
+                  placeholder="Ej. Senior Frontend Dev"
+                  maxLength={100}
+                />
+              </div>
+              <div>
+                <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                  Puesto / Rol (ES)
+                </label>
+                <input
+                  {...register("positionEs", { required: true })}
+                  style={inputStyle}
+                  placeholder="Ej. Desarrollador Frontend Senior"
+                  maxLength={100}
+                />
+              </div>
             </div>
 
             <div>
@@ -125,6 +145,7 @@ export default function AdminExperience() {
                 {...register("company", { required: true })}
                 style={inputStyle}
                 placeholder="Ej. Google"
+                maxLength={100}
               />
             </div>
 
@@ -157,19 +178,43 @@ export default function AdminExperience() {
               </div>
             </div>
 
-            <div>
-              <label style={{ display: "block", marginBottom: "0.5rem" }}>
-                Descripción
-              </label>
-              <textarea
-                {...register("description", { required: true })}
-                style={{
-                  ...inputStyle,
-                  minHeight: "100px",
-                  resize: "vertical",
-                }}
-                placeholder="Logros y responsabilidades..."
-              />
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "1rem",
+              }}
+            >
+              <div>
+                <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                  Descripción (EN)
+                </label>
+                <textarea
+                  {...register("description", { required: true })}
+                  style={{
+                    ...inputStyle,
+                    minHeight: "100px",
+                    resize: "vertical",
+                  }}
+                  placeholder="Achievements and responsibilities..."
+                  maxLength={1000}
+                />
+              </div>
+              <div>
+                <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                  Descripción (ES)
+                </label>
+                <textarea
+                  {...register("descriptionEs", { required: true })}
+                  style={{
+                    ...inputStyle,
+                    minHeight: "100px",
+                    resize: "vertical",
+                  }}
+                  placeholder="Logros y responsabilidades..."
+                  maxLength={1000}
+                />
+              </div>
             </div>
 
             <button

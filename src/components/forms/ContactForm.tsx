@@ -115,11 +115,13 @@ export default function ContactForm() {
                 {...register("name", {
                   required: "El nombre es obligatorio",
                   minLength: { value: 2, message: "Mínimo 2 caracteres" },
+                  maxLength: { value: 100, message: "Máximo 100 caracteres" },
                   pattern: {
                     value: /^[a-zA-Z\s]*$/,
                     message: "Solo letras y espacios",
                   },
                 })}
+                maxLength={100}
                 style={{
                   width: "100%",
                   padding: "0.8rem",
@@ -155,7 +157,9 @@ export default function ContactForm() {
                 {...register("subject", {
                   required: "El asunto es obligatorio",
                   minLength: { value: 3, message: "Mínimo 3 caracteres" },
+                  maxLength: { value: 150, message: "Máximo 150 caracteres" },
                 })}
+                maxLength={150}
                 style={{
                   width: "100%",
                   padding: "0.8rem",
@@ -190,11 +194,13 @@ export default function ContactForm() {
               <input
                 {...register("email", {
                   required: "El email es obligatorio",
+                  maxLength: { value: 100, message: "Máximo 100 caracteres" },
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                     message: "Email inválido",
                   },
                 })}
+                maxLength={100}
                 style={{
                   width: "100%",
                   padding: "0.8rem",
@@ -230,7 +236,9 @@ export default function ContactForm() {
                 {...register("message", {
                   required: "El mensaje es obligatorio",
                   minLength: { value: 10, message: "Mínimo 10 caracteres" },
+                  maxLength: { value: 2000, message: "Máximo 2000 caracteres" },
                 })}
+                maxLength={2000}
                 rows={4}
                 style={{
                   width: "100%",

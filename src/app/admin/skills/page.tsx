@@ -8,6 +8,7 @@ import {
   uploadImage,
 } from "@/lib/api";
 import { Plus, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const baseInputStyle: any = {
   width: "100%",
@@ -35,6 +36,7 @@ const selectStyle: any = {
 export default function AdminSkills() {
   const [skills, setSkills] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   // Form state
   const [formData, setFormData] = useState({
@@ -47,14 +49,25 @@ export default function AdminSkills() {
   });
 
   useEffect(() => {
+    // Check auth
+    if (typeof window !== "undefined" && !localStorage.getItem("auth_token")) {
+      router.push("/admin");
+      return;
+    }
+
     loadSkills();
-  }, []);
+  }, [router]);
 
   async function loadSkills() {
     setLoading(true);
-    const data = await getSkillsFull();
-    setSkills(data);
-    setLoading(false);
+    try {
+      const data = await getSkillsFull();
+      setSkills(data);
+    } catch (error) {
+      console.error("Error loading skills:", error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   const handleDelete = async (id: string) => {
@@ -140,6 +153,7 @@ export default function AdminSkills() {
                 setFormData({ ...formData, name: e.target.value })
               }
               required
+              maxLength={50}
               style={baseInputStyle}
             />
 

@@ -17,11 +17,14 @@ const AUTH_URL = "/api/auth/login";
 export async function getProjects(lang?: string): Promise<Project[]> {
   const baseUrl = getBaseUrl();
   try {
-    const url = new URL(`${baseUrl}/projects`);
-    if (lang) url.searchParams.append("lang", lang.toLowerCase());
+    let url = `${baseUrl}/projects`;
+    if (lang) {
+      url += `?lang=${encodeURIComponent(lang.toLowerCase())}`;
+    }
 
-    const response = await fetch(url.toString(), {
+    const response = await fetch(url, {
       next: { revalidate: 3600 },
+      headers: { ...getAuthHeader() },
     });
 
     if (!response.ok) {
@@ -50,11 +53,14 @@ export async function getProjects(lang?: string): Promise<Project[]> {
 export async function getExperience(lang?: string): Promise<ExperienceItem[]> {
   const baseUrl = getBaseUrl();
   try {
-    const url = new URL(`${baseUrl}/experience`);
-    if (lang) url.searchParams.append("lang", lang.toLowerCase());
+    let url = `${baseUrl}/experience`;
+    if (lang) {
+      url += `?lang=${encodeURIComponent(lang.toLowerCase())}`;
+    }
 
-    const response = await fetch(url.toString(), {
+    const response = await fetch(url, {
       next: { revalidate: 3600 },
+      headers: { ...getAuthHeader() },
     });
 
     if (!response.ok) {
@@ -124,11 +130,14 @@ export async function getProjectById(
 ): Promise<Project | null> {
   const baseUrl = getBaseUrl();
   try {
-    const url = new URL(`${baseUrl}/projects/${id}`);
-    if (lang) url.searchParams.append("lang", lang.toLowerCase());
+    let url = `${baseUrl}/projects/${id}`;
+    if (lang) {
+      url += `?lang=${encodeURIComponent(lang.toLowerCase())}`;
+    }
 
-    const response = await fetch(url.toString(), {
+    const response = await fetch(url, {
       next: { revalidate: 3600 },
+      headers: { ...getAuthHeader() },
     });
 
     if (!response.ok) {
@@ -193,11 +202,14 @@ export async function getSkillsFull(): Promise<any[]> {
 export async function getAbout(lang?: string): Promise<any> {
   const baseUrl = getBaseUrl();
   try {
-    const url = new URL(`${baseUrl}/about`);
-    if (lang) url.searchParams.append("lang", lang.toLowerCase());
+    let url = `${baseUrl}/about`;
+    if (lang) {
+      url += `?lang=${encodeURIComponent(lang.toLowerCase())}`;
+    }
 
-    const response = await fetch(url.toString(), {
+    const response = await fetch(url, {
       next: { revalidate: 3600 },
+      headers: { ...getAuthHeader() },
     });
 
     if (!response.ok) throw new Error("Failed to fetch about info");
@@ -424,10 +436,12 @@ export async function deleteSkill(id: string): Promise<boolean> {
 export async function getBlogs(lang?: string): Promise<any[]> {
   const baseUrl = getBaseUrl();
   try {
-    const url = new URL(`${baseUrl}/blogs`);
-    if (lang) url.searchParams.append("lang", lang.toLowerCase());
+    let url = `${baseUrl}/blogs`;
+    if (lang) {
+      url += `?lang=${encodeURIComponent(lang.toLowerCase())}`;
+    }
 
-    const response = await fetch(url.toString(), {
+    const response = await fetch(url, {
       next: { revalidate: 3600 },
       headers: { ...getAuthHeader() },
     });

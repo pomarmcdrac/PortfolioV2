@@ -68,6 +68,46 @@ export async function getExperience(): Promise<ExperienceItem[]> {
 }
 
 /**
+ * Create a new experience item
+ */
+export async function createExperience(experienceData: any): Promise<boolean> {
+  const baseUrl = getBaseUrl();
+  try {
+    const response = await fetch(`${baseUrl}/experience`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(experienceData),
+    });
+
+    return response.ok;
+  } catch (error) {
+    console.error("Create experience error:", error);
+    return false;
+  }
+}
+
+/**
+ * Delete an experience item
+ */
+export async function deleteExperience(id: string): Promise<boolean> {
+  const baseUrl = getBaseUrl();
+  try {
+    const response = await fetch(`${baseUrl}/experience/${id}`, {
+      method: "DELETE",
+      headers: { ...getAuthHeader() },
+    });
+
+    return response.ok;
+  } catch (error) {
+    console.error("Delete experience error:", error);
+    return false;
+  }
+}
+
+/**
  * Fetches a single project by ID.
  */
 export async function getProjectById(id: string): Promise<Project | null> {
@@ -153,6 +193,28 @@ export async function getAbout(): Promise<any> {
 }
 
 /**
+ * Update about information
+ */
+export async function updateAbout(aboutData: any): Promise<boolean> {
+  const baseUrl = getBaseUrl();
+  try {
+    const response = await fetch(`${baseUrl}/about`, {
+      method: "POST", // Using POST for update/create as per typical conventions if PUT not specified
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(aboutData),
+    });
+
+    return response.ok;
+  } catch (error) {
+    console.error("Update about error:", error);
+    return false;
+  }
+}
+
+/**
  * Sends a contact email.
  */
 export async function sendEmail(data: {
@@ -191,7 +253,14 @@ export async function sendEmail(data: {
 const getAuthHeader = (): Record<string, string> => {
   if (typeof window === "undefined") return {};
   const token = localStorage.getItem("auth_token");
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  // Assuming language might be stored in localStorage by the context in the future
+  // or we can manually set it. For now, let's try to read it.
+  const lang = localStorage.getItem("language") || "ES";
+
+  return {
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    "Accept-Language": lang.toLowerCase(),
+  };
 };
 
 /**
@@ -330,6 +399,68 @@ export async function deleteSkill(id: string): Promise<boolean> {
     return response.ok;
   } catch (error) {
     console.error("Delete skill error:", error);
+    return false;
+  }
+}
+
+/**
+ * Fetch all blogs
+ */
+export async function getBlogs(): Promise<any[]> {
+  const baseUrl = getBaseUrl();
+  try {
+    const response = await fetch(`${baseUrl}/blogs`, {
+      next: { revalidate: 3600 },
+      headers: { ...getAuthHeader() },
+    });
+
+    if (!response.ok) {
+      // Si el endpoint no existe o falla, regresamos array vacío sin hacer ruido
+      if (response.status === 404) return [];
+      console.warn("Failed to fetch blogs:", response.statusText);
+      return [];
+    }
+    return await response.json();
+  } catch (error) {
+    // Si la API está caída o no existe conexión, regresamos vacío
+    return [];
+  }
+}
+
+/**
+ * Create a new blog post
+ */
+export async function createBlog(blogData: any): Promise<boolean> {
+  const baseUrl = getBaseUrl();
+  try {
+    const response = await fetch(`${baseUrl}/blogs`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(blogData),
+    });
+
+    return response.ok;
+  } catch (error) {
+    return false;
+  }
+}
+
+/**
+ * Delete a blog post
+ */
+export async function deleteBlog(id: string): Promise<boolean> {
+  const baseUrl = getBaseUrl();
+  try {
+    const response = await fetch(`${baseUrl}/blogs/${id}`, {
+      method: "DELETE",
+      headers: { ...getAuthHeader() },
+    });
+
+    return response.ok;
+  } catch (error) {
     return false;
   }
 }

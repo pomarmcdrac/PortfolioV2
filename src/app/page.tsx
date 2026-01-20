@@ -8,7 +8,7 @@ import {
 } from "@/data/projects";
 import ProjectCard from "@/components/projects/ProjectCard";
 import TechMarquee from "@/components/sections/TechMarquee";
-import { getProjects } from "@/lib/api";
+import { getProjects, getAbout } from "@/lib/api";
 import ExperienceTimeline from "@/components/sections/ExperienceTimeline";
 import Services from "@/components/sections/Services";
 import ContactCTA from "@/components/sections/ContactCTA";
@@ -23,14 +23,20 @@ export default function Home() {
   const [projectsList, setProjectsList] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [isApiOffline, setIsApiOffline] = useState(false);
+  const [aboutData, setAboutData] = useState<any>(null);
 
   useEffect(() => {
-    async function loadProjects() {
+    async function loadData() {
       setLoading(true);
       try {
-        const data = await getProjects();
+        const [projectsData, aboutInfo] = await Promise.all([
+          getProjects(),
+          getAbout(),
+        ]);
+
         // Si la API responde (incluso si está vacía), confiamos en ella
-        setProjectsList(data);
+        setProjectsList(projectsData);
+        setAboutData(aboutInfo);
         setIsApiOffline(false);
       } catch (error) {
         // Solo si falla la conexión usamos los estáticos como respaldo
@@ -41,7 +47,7 @@ export default function Home() {
         setLoading(false);
       }
     }
-    loadProjects();
+    loadData();
   }, []);
 
   const categories: (ProjectCategory | "All")[] = [
@@ -118,7 +124,7 @@ export default function Home() {
               marginBottom: "1rem",
             }}
           >
-            {t.hero.subtitle}
+            {aboutData?.subtitle || t.hero.subtitle}
           </span>
           <h1
             style={{
@@ -132,7 +138,7 @@ export default function Home() {
               display: "inline-block",
             }}
           >
-            {t.hero.title}
+            {aboutData?.title || t.hero.title}
           </h1>
           <p
             style={{
@@ -141,12 +147,24 @@ export default function Home() {
               fontSize: "1.25rem",
               color: "rgba(255,255,255,0.7)",
               lineHeight: 1.6,
+              whiteSpace: "pre-line",
             }}
           >
-            {t.hero.description}{" "}
-            <strong style={{ color: "var(--color-primary)" }}>Flutter</strong> &{" "}
-            <strong style={{ color: "var(--color-secondary)" }}>Next.js</strong>
-            .
+            {aboutData?.description ? (
+              aboutData.description
+            ) : (
+              <>
+                {t.hero.description}{" "}
+                <strong style={{ color: "var(--color-primary)" }}>
+                  Flutter
+                </strong>{" "}
+                &{" "}
+                <strong style={{ color: "var(--color-secondary)" }}>
+                  Next.js
+                </strong>
+                .
+              </>
+            )}
           </p>
         </motion.div>
 

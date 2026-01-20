@@ -7,13 +7,34 @@ import {
   deleteSkill,
   uploadImage,
 } from "@/lib/api";
-import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
+import { Plus, Trash2 } from "lucide-react";
+
+const baseInputStyle: any = {
+  width: "100%",
+  padding: "0.8rem",
+  borderRadius: "12px",
+  background: "#1a1a1a",
+  border: "1px solid rgba(255,255,255,0.1)",
+  color: "white",
+  fontSize: "0.9rem",
+  outline: "none",
+  colorScheme: "dark",
+};
+
+const selectStyle: any = {
+  ...baseInputStyle,
+  appearance: "none",
+  WebkitAppearance: "none",
+  backgroundImage:
+    "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e\")",
+  backgroundRepeat: "no-repeat",
+  backgroundPosition: "right 1rem center",
+  backgroundSize: "1em",
+};
 
 export default function AdminSkills() {
-  const [skills, setSkills] = useState<any[]>([]); // Assuming skills have more than just a name in management
+  const [skills, setSkills] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -58,7 +79,6 @@ export default function AdminSkills() {
     e.preventDefault();
     const success = await createSkill(formData);
     if (success) {
-      setIsModalOpen(false);
       setFormData({
         name: "",
         category: "Frontend",
@@ -73,273 +93,262 @@ export default function AdminSkills() {
     }
   };
 
+  if (loading && skills.length === 0)
+    return <div style={{ padding: "2rem", color: "white" }}>Cargando...</div>;
+
   return (
     <div
       style={{
         padding: "2rem",
-        maxWidth: "800px",
+        maxWidth: "1200px",
         margin: "0 auto",
         color: "white",
       }}
     >
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "3rem",
-        }}
-      >
-        <h1>Gestión de Skills</h1>
-        <div style={{ display: "flex", gap: "1rem" }}>
-          <Link
-            href="/admin/projects"
-            style={{
-              padding: "0.5rem 1rem",
-              border: "1px solid #444",
-              borderRadius: "8px",
-            }}
-          >
-            Proyectos
-          </Link>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            style={{
-              padding: "0.5rem 1.5rem",
-              background: "var(--color-secondary)",
-              border: "none",
-              borderRadius: "8px",
-              fontWeight: "bold",
-              cursor: "pointer",
-              color: "black",
-            }}
-          >
-            + Nueva Skill
-          </button>
-        </div>
-      </header>
+      <h1 style={{ fontSize: "2rem", marginBottom: "2rem" }}>
+        Gestionar Habilidades
+      </h1>
 
-      {loading ? (
-        <p>Cargando skills...</p>
-      ) : (
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1.5fr",
+          gap: "2rem",
+        }}
+        className="admin-grid"
+      >
+        {/* Formulario */}
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-            gap: "1rem",
+            background: "rgba(255,255,255,0.05)",
+            padding: "1.5rem",
+            borderRadius: "16px",
+            height: "fit-content",
           }}
         >
-          {skills.map((skill) => (
-            <div
-              key={skill.id}
-              style={{
-                background: "var(--color-surface)",
-                padding: "1.2rem",
-                borderRadius: "16px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                border: "1px solid rgba(255,255,255,0.05)",
-              }}
-            >
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "1rem" }}
-              >
-                {skill.icon && (
-                  <img
-                    src={skill.icon}
-                    alt={skill.name}
-                    style={{ width: "30px", height: "30px" }}
-                  />
-                )}
-                <h3 style={{ margin: 0, fontSize: "1rem" }}>{skill.name}</h3>
-              </div>
-              <button
-                onClick={() => handleDelete(skill.id)}
-                style={{
-                  background: "#ff4444",
-                  border: "none",
-                  padding: "0.4rem 0.8rem",
-                  borderRadius: "6px",
-                  color: "white",
-                  cursor: "pointer",
-                  fontSize: "0.8rem",
-                }}
-              >
-                Eliminar
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <AnimatePresence>
-        {isModalOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: "rgba(0,0,0,0.8)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              zIndex: 1000,
-              padding: "1rem",
-            }}
+          <h2 style={{ marginBottom: "1.5rem", fontSize: "1.2rem" }}>
+            Agregar Nueva Skill
+          </h2>
+          <form
+            onSubmit={handleSubmit}
+            style={{ display: "grid", gap: "1rem" }}
           >
-            <motion.form
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              onSubmit={handleSubmit}
+            <input
+              placeholder="Nombre (ej: React)"
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+              required
+              style={baseInputStyle}
+            />
+
+            <select
+              value={formData.category}
+              onChange={(e) =>
+                setFormData({ ...formData, category: e.target.value })
+              }
+              style={selectStyle}
+            >
+              <option value="Frontend">Frontend</option>
+              <option value="Backend">Backend</option>
+              <option value="Mobile">Mobile</option>
+              <option value="Tools">Tools</option>
+            </select>
+
+            <div
               style={{
-                background: "var(--color-surface)",
-                padding: "2rem",
-                borderRadius: "24px",
-                width: "100%",
-                maxWidth: "400px",
                 display: "grid",
+                gridTemplateColumns: "1fr 1fr",
                 gap: "1rem",
               }}
             >
-              <h2>Nueva Skill</h2>
-
-              <input
-                placeholder="Nombre (ej: React)"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                required
-                style={inputStyle}
-              />
-
-              <select
-                value={formData.category}
-                onChange={(e) =>
-                  setFormData({ ...formData, category: e.target.value })
-                }
-                style={inputStyle}
-              >
-                <option value="Frontend">Frontend</option>
-                <option value="Backend">Backend</option>
-                <option value="Mobile">Mobile</option>
-                <option value="Tools">Tools</option>
-              </select>
-
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: "1rem",
-                }}
-              >
-                <div>
-                  <label style={{ fontSize: "0.8rem", color: "#888" }}>
-                    Nivel (0-100)
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.level}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        level: parseInt(e.target.value),
-                      })
-                    }
-                    style={inputStyle}
-                  />
-                </div>
-                <div>
-                  <label style={{ fontSize: "0.8rem", color: "#888" }}>
-                    Años Exp.
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.yearsOfExperience}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        yearsOfExperience: parseInt(e.target.value),
-                      })
-                    }
-                    style={inputStyle}
-                  />
-                </div>
+              <div>
+                <label
+                  style={{
+                    fontSize: "0.8rem",
+                    color: "#888",
+                    display: "block",
+                    marginBottom: "0.3rem",
+                  }}
+                >
+                  Nivel (0-100)
+                </label>
+                <input
+                  type="number"
+                  value={formData.level}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      level: parseInt(e.target.value) || 0,
+                    })
+                  }
+                  style={baseInputStyle}
+                />
               </div>
+              <div>
+                <label
+                  style={{
+                    fontSize: "0.8rem",
+                    color: "#888",
+                    display: "block",
+                    marginBottom: "0.3rem",
+                  }}
+                >
+                  Años Exp.
+                </label>
+                <input
+                  type="number"
+                  value={formData.yearsOfExperience}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      yearsOfExperience: parseInt(e.target.value) || 0,
+                    })
+                  }
+                  style={baseInputStyle}
+                />
+              </div>
+            </div>
 
+            <div
+              style={{
+                border: "2px dashed rgba(255,255,255,0.1)",
+                padding: "1rem",
+                borderRadius: "12px",
+                textAlign: "center",
+              }}
+            >
+              <label style={{ cursor: "pointer", display: "block" }}>
+                {formData.icon ? "✅ Icono subido" : "📁 Subir Icono (SVG/PNG)"}
+                <input
+                  type="file"
+                  onChange={handleFileUpload}
+                  style={{ display: "none" }}
+                  accept="image/*"
+                />
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              style={{
+                background: "var(--color-primary)",
+                color: "black",
+                padding: "0.8rem",
+                borderRadius: "8px",
+                border: "none",
+                fontWeight: "bold",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.5rem",
+                marginTop: "0.5rem",
+              }}
+            >
+              <Plus size={20} /> Guardar Skill
+            </button>
+          </form>
+        </div>
+
+        {/* Lista Grid */}
+        <div>
+          <h2 style={{ marginBottom: "1.5rem", fontSize: "1.2rem" }}>
+            Skills Existentes
+          </h2>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+              gap: "1rem",
+            }}
+          >
+            {skills.map((skill) => (
               <div
+                key={skill.id}
                 style={{
-                  border: "2px dashed rgba(255,255,255,0.1)",
+                  background: "rgba(0,0,0,0.3)",
                   padding: "1rem",
                   borderRadius: "12px",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  position: "relative",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  textAlign: "center",
+                  gap: "0.5rem",
+                }}
+              >
+                <button
+                  onClick={() => handleDelete(skill.id)}
+                  style={{
+                    position: "absolute",
+                    top: "0.5rem",
+                    right: "0.5rem",
+                    background: "rgba(255,0,0,0.1)",
+                    color: "#ff4444",
+                    border: "none",
+                    padding: "0.4rem",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                  }}
+                >
+                  <Trash2 size={16} />
+                </button>
+
+                {skill.icon ? (
+                  <img
+                    src={skill.icon}
+                    alt={skill.name}
+                    style={{ width: "40px", height: "40px" }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      background: "rgba(255,255,255,0.1)",
+                      borderRadius: "8px",
+                    }}
+                  />
+                )}
+
+                <div>
+                  <h3 style={{ margin: 0, fontSize: "1rem" }}>{skill.name}</h3>
+                  <span
+                    style={{
+                      fontSize: "0.8rem",
+                      color: "rgba(255,255,255,0.5)",
+                    }}
+                  >
+                    {skill.category}
+                  </span>
+                </div>
+              </div>
+            ))}
+            {skills.length === 0 && (
+              <div
+                style={{
+                  padding: "2rem",
+                  color: "rgba(255,255,255,0.4)",
+                  gridColumn: "1 / -1",
                   textAlign: "center",
                 }}
               >
-                <label style={{ cursor: "pointer", display: "block" }}>
-                  {formData.icon
-                    ? "✅ Icono subido"
-                    : "📁 Subir Icono (SVG/PNG)"}
-                  <input
-                    type="file"
-                    onChange={handleFileUpload}
-                    style={{ display: "none" }}
-                    accept="image/*"
-                  />
-                </label>
+                No hay skills registradas.
               </div>
-
-              <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  style={{
-                    flex: 1,
-                    padding: "0.8rem",
-                    borderRadius: "12px",
-                    background: "transparent",
-                    border: "1px solid #444",
-                    color: "white",
-                    cursor: "pointer",
-                  }}
-                >
-                  Cerrar
-                </button>
-                <button
-                  type="submit"
-                  style={{
-                    flex: 1,
-                    padding: "0.8rem",
-                    borderRadius: "12px",
-                    background: "var(--color-secondary)",
-                    border: "none",
-                    color: "black",
-                    fontWeight: "bold",
-                    cursor: "pointer",
-                  }}
-                >
-                  Guardar
-                </button>
-              </div>
-            </motion.form>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            )}
+          </div>
+        </div>
+      </div>
+      <style jsx>{`
+        @media (max-width: 900px) {
+          .admin-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
-
-const inputStyle = {
-  width: "100%",
-  padding: "0.8rem",
-  borderRadius: "12px",
-  background: "rgba(0,0,0,0.2)",
-  border: "1px solid rgba(255,255,255,0.1)",
-  color: "white",
-  fontSize: "0.9rem",
-};

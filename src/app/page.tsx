@@ -211,7 +211,9 @@ export default function Home() {
           >
             {t.hero.ctaBlog}
           </a>
-          <button
+          <a
+            href="/cv.pdf"
+            download="Omar_Morales_CV.pdf"
             style={{
               padding: "1rem 2rem",
               background: "transparent",
@@ -221,10 +223,12 @@ export default function Home() {
               cursor: "pointer",
               fontWeight: "600",
               fontSize: "1rem",
+              textDecoration: "none",
+              display: "inline-block",
             }}
           >
             {t.hero.ctaCV}
-          </button>
+          </a>
         </motion.div>
       </section>
 

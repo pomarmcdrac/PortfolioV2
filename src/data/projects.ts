@@ -11,6 +11,8 @@ export interface Project {
   repoUrl?: string; // Opcional
   liveUrl?: string; // Opcional
   isConfidential?: boolean; // Indica si el proyecto tiene restricciones de confidencialidad
+  featured?: boolean; // Para destacar en home
+  order?: number; // Para ordenar explícitamente
 }
 
 export const projects: Project[] = [

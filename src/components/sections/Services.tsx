@@ -3,6 +3,7 @@
 import styles from "./Services.module.css";
 import { Smartphone, Globe, Server, CheckCircle2 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import Link from "next/link";
 
 export default function Services() {
   const { t } = useLanguage();
@@ -83,6 +84,44 @@ export default function Services() {
             </ul>
           </div>
         ))}
+      </div>
+
+      <div
+        style={{ display: "flex", justifyContent: "center", marginTop: "4rem" }}
+      >
+        <Link
+          href="/booking"
+          style={{
+            padding: "1rem 2.5rem",
+            background: "rgba(255, 255, 255, 0.03)",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            borderRadius: "99px",
+            color: "white",
+            textDecoration: "none",
+            fontWeight: "bold",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.8rem",
+            transition: "all 0.3s ease",
+            fontSize: "1.1rem",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(255, 255, 255, 0.07)";
+            e.currentTarget.style.borderColor = "var(--color-primary)";
+            e.currentTarget.style.transform = "scale(1.05)";
+            e.currentTarget.style.boxShadow =
+              "0 0 30px -10px var(--color-primary-glow)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
+            e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.1)";
+            e.currentTarget.style.transform = "scale(1)";
+            e.currentTarget.style.boxShadow = "none";
+          }}
+        >
+          <Globe size={20} style={{ color: "var(--color-primary)" }} />
+          {t.services.cta}
+        </Link>
       </div>
     </section>
   );

@@ -1,20 +1,27 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getExperience, createExperience, deleteExperience } from "@/lib/api";
+import {
+  getExperience,
+  createExperience,
+  updateExperience,
+  deleteExperience,
+} from "@/lib/api";
 import { useRouter } from "next/navigation";
-import { Trash2, Plus, Calendar, Briefcase, Building } from "lucide-react";
+import { Trash2, Plus, Calendar, Building, Pencil, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 export default function AdminExperience() {
   const [experienceList, setExperienceList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const router = useRouter();
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm();
 
@@ -50,6 +57,23 @@ export default function AdminExperience() {
     }
   };
 
+  const handleEdit = (item: any) => {
+    setEditingId(item.id);
+    setValue("position", item.position);
+    setValue("positionEs", item.positionEs || item.position);
+    setValue("company", item.company);
+    setValue("startDate", item.startDate);
+    setValue("endDate", item.endDate || "");
+    setValue("description", item.description);
+    setValue("descriptionEs", item.descriptionEs || item.description);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const resetForm = () => {
+    setEditingId(null);
+    reset();
+  };
+
   const onSubmit = async (data: any) => {
     // Basic format adjustment if needed by API
     const payload = {
@@ -57,12 +81,19 @@ export default function AdminExperience() {
       current: data.endDate === "", // Simple logic for current job
     };
 
-    const success = await createExperience(payload);
-    if (success) {
-      reset();
-      loadData();
+    let success = false;
+    if (editingId) {
+      success = await updateExperience(editingId, payload);
     } else {
-      alert("Error al crear experiencia");
+      success = await createExperience(payload);
+    }
+
+    if (success) {
+      resetForm();
+      loadData();
+      alert(editingId ? "Actualizado correctamente" : "Creado correctamente");
+    } else {
+      alert("Error al guardar experiencia");
     }
   };
 
@@ -97,11 +128,35 @@ export default function AdminExperience() {
             padding: "1.5rem",
             borderRadius: "16px",
             height: "fit-content",
+            position: "sticky",
+            top: "2rem",
           }}
         >
-          <h2 style={{ marginBottom: "1.5rem", fontSize: "1.2rem" }}>
-            Agregar Nueva
-          </h2>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "1.5rem",
+            }}
+          >
+            <h2 style={{ fontSize: "1.2rem", margin: 0 }}>
+              {editingId ? "Editar Experiencia" : "Agregar Nueva"}
+            </h2>
+            {editingId && (
+              <button
+                onClick={resetForm}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "white",
+                  cursor: "pointer",
+                }}
+              >
+                <X size={20} />
+              </button>
+            )}
+          </div>
           <form
             onSubmit={handleSubmit(onSubmit)}
             style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
@@ -114,7 +169,14 @@ export default function AdminExperience() {
               }}
             >
               <div>
-                <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "0.5rem",
+                    fontSize: "0.8rem",
+                    opacity: 0.7,
+                  }}
+                >
                   Puesto / Rol (EN)
                 </label>
                 <input
@@ -125,7 +187,14 @@ export default function AdminExperience() {
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "0.5rem",
+                    fontSize: "0.8rem",
+                    opacity: 0.7,
+                  }}
+                >
                   Puesto / Rol (ES)
                 </label>
                 <input
@@ -138,7 +207,14 @@ export default function AdminExperience() {
             </div>
 
             <div>
-              <label style={{ display: "block", marginBottom: "0.5rem" }}>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: "0.5rem",
+                  fontSize: "0.8rem",
+                  opacity: 0.7,
+                }}
+              >
                 Empresa
               </label>
               <input
@@ -157,7 +233,14 @@ export default function AdminExperience() {
               }}
             >
               <div>
-                <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "0.5rem",
+                    fontSize: "0.8rem",
+                    opacity: 0.7,
+                  }}
+                >
                   Fecha Inicio
                 </label>
                 <input
@@ -167,7 +250,14 @@ export default function AdminExperience() {
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "0.5rem",
+                    fontSize: "0.8rem",
+                    opacity: 0.7,
+                  }}
+                >
                   Fecha Fin
                 </label>
                 <input
@@ -186,7 +276,14 @@ export default function AdminExperience() {
               }}
             >
               <div>
-                <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "0.5rem",
+                    fontSize: "0.8rem",
+                    opacity: 0.7,
+                  }}
+                >
                   Descripción (EN)
                 </label>
                 <textarea
@@ -196,12 +293,19 @@ export default function AdminExperience() {
                     minHeight: "100px",
                     resize: "vertical",
                   }}
-                  placeholder="Achievements and responsibilities..."
+                  placeholder="Achievements..."
                   maxLength={1000}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "0.5rem",
+                    fontSize: "0.8rem",
+                    opacity: 0.7,
+                  }}
+                >
                   Descripción (ES)
                 </label>
                 <textarea
@@ -211,7 +315,7 @@ export default function AdminExperience() {
                     minHeight: "100px",
                     resize: "vertical",
                   }}
-                  placeholder="Logros y responsabilidades..."
+                  placeholder="Logros..."
                   maxLength={1000}
                 />
               </div>
@@ -220,7 +324,9 @@ export default function AdminExperience() {
             <button
               type="submit"
               style={{
-                background: "var(--color-primary)",
+                background: editingId
+                  ? "var(--color-secondary)"
+                  : "var(--color-primary)",
                 color: "black",
                 padding: "0.8rem",
                 borderRadius: "8px",
@@ -234,7 +340,8 @@ export default function AdminExperience() {
                 marginTop: "1rem",
               }}
             >
-              <Plus size={20} /> Guardar Experiencia
+              {editingId ? <Pencil size={20} /> : <Plus size={20} />}{" "}
+              {editingId ? "Actualizar" : "Guardar"} Experiencia
             </button>
           </form>
         </div>
@@ -254,29 +361,53 @@ export default function AdminExperience() {
                   background: "rgba(0,0,0,0.3)",
                   padding: "1.5rem",
                   borderRadius: "12px",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  border: `1px solid ${editingId === item.id ? "var(--color-secondary)" : "rgba(255,255,255,0.1)"}`,
                   position: "relative",
                 }}
               >
-                <button
-                  onClick={() => handleDelete(item.id)}
+                <div
                   style={{
                     position: "absolute",
                     top: "1rem",
                     right: "1rem",
-                    background: "rgba(255,0,0,0.1)",
-                    color: "#ff4444",
-                    border: "none",
-                    padding: "0.5rem",
-                    borderRadius: "8px",
-                    cursor: "pointer",
+                    display: "flex",
+                    gap: "0.5rem",
                   }}
                 >
-                  <Trash2 size={18} />
-                </button>
+                  <button
+                    onClick={() => handleEdit(item)}
+                    style={{
+                      background: "rgba(255,255,255,0.1)",
+                      color: "white",
+                      border: "none",
+                      padding: "0.5rem",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <Pencil size={18} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    style={{
+                      background: "rgba(255,0,0,0.1)",
+                      color: "#ff4444",
+                      border: "none",
+                      padding: "0.5rem",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
 
                 <h3
-                  style={{ fontSize: "1.2rem", color: "var(--color-primary)" }}
+                  style={{
+                    fontSize: "1.2rem",
+                    color: "var(--color-primary)",
+                    paddingRight: "5rem",
+                  }}
                 >
                   {item.position || item.role}
                 </h3>

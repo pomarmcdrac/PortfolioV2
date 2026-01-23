@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import {
   getProjects,
   createProject,
+  updateProject,
   deleteProject,
   uploadImage,
 } from "@/lib/api";
 import { Project } from "@/data/projects";
-import { Plus, Trash2, Github, ExternalLink } from "lucide-react";
+import { Plus, Trash2, Github, ExternalLink, Pencil } from "lucide-react";
 
 import { useRouter } from "next/navigation";
 
@@ -38,6 +39,7 @@ const selectStyle: any = {
 export default function AdminProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const router = useRouter();
 
   // Form state
@@ -86,6 +88,27 @@ export default function AdminProjects() {
     }
   };
 
+  const handleEdit = (project: Project) => {
+    setEditingId(project.id);
+    setFormData({
+      title: project.title,
+      titleEs: (project as any).titleEs || project.title,
+      description: project.description,
+      descriptionEs: (project as any).descriptionEs || project.description,
+      longDescription: project.longDescription || "",
+      longDescriptionEs:
+        (project as any).longDescriptionEs || project.longDescription || "",
+      category: project.category,
+      technologies: project.techStack.join(", "),
+      githubUrl: project.repoUrl || "",
+      liveUrl: project.liveUrl || "",
+      imageUrl: project.imageUrl || "",
+      featured: project.featured || false,
+      order: project.order || 0,
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -97,6 +120,25 @@ export default function AdminProjects() {
     }
   };
 
+  const resetForm = () => {
+    setEditingId(null);
+    setFormData({
+      title: "",
+      titleEs: "",
+      description: "",
+      descriptionEs: "",
+      longDescription: "",
+      longDescriptionEs: "",
+      category: "Frontend",
+      technologies: "",
+      githubUrl: "",
+      liveUrl: "",
+      imageUrl: "",
+      featured: false,
+      order: 0,
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const payload = {
@@ -105,26 +147,19 @@ export default function AdminProjects() {
       technologies: formData.technologies.split(",").map((t) => t.trim()),
     };
 
-    const success = await createProject(payload);
-    if (success) {
-      setFormData({
-        title: "",
-        titleEs: "",
-        description: "",
-        descriptionEs: "",
-        longDescription: "",
-        longDescriptionEs: "",
-        category: "Frontend",
-        technologies: "",
-        githubUrl: "",
-        liveUrl: "",
-        imageUrl: "",
-        featured: false,
-        order: 0,
-      });
-      loadProjects();
+    let success = false;
+    if (editingId) {
+      success = await updateProject(editingId, payload);
     } else {
-      alert("Error al crear el proyecto");
+      success = await createProject(payload);
+    }
+
+    if (success) {
+      resetForm();
+      loadProjects();
+      alert(editingId ? "Proyecto actualizado" : "Proyecto creado");
+    } else {
+      alert("Error al guardar el proyecto");
     }
   };
 
@@ -159,11 +194,38 @@ export default function AdminProjects() {
             padding: "1.5rem",
             borderRadius: "16px",
             height: "fit-content",
+            position: "sticky",
+            top: "2rem",
           }}
         >
-          <h2 style={{ marginBottom: "1.5rem", fontSize: "1.2rem" }}>
-            Agregar Nuevo Proyecto
-          </h2>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "1.5rem",
+            }}
+          >
+            <h2 style={{ fontSize: "1.2rem", margin: 0 }}>
+              {editingId ? "Editar Proyecto" : "Agregar Nuevo Proyecto"}
+            </h2>
+            {editingId && (
+              <button
+                onClick={resetForm}
+                style={{
+                  background: "rgba(255,255,255,0.1)",
+                  border: "none",
+                  color: "white",
+                  padding: "0.4rem 0.8rem",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontSize: "0.8rem",
+                }}
+              >
+                Cancelar
+              </button>
+            )}
+          </div>
           <form
             onSubmit={handleSubmit}
             style={{ display: "grid", gap: "1rem" }}
@@ -175,26 +237,36 @@ export default function AdminProjects() {
                 gap: "1rem",
               }}
             >
-              <input
-                placeholder="Título (EN)"
-                value={formData.title}
-                onChange={(e) =>
-                  setFormData({ ...formData, title: e.target.value })
-                }
-                required
-                maxLength={100}
-                style={baseInputStyle}
-              />
-              <input
-                placeholder="Título (ES)"
-                value={formData.titleEs}
-                onChange={(e) =>
-                  setFormData({ ...formData, titleEs: e.target.value })
-                }
-                required
-                maxLength={100}
-                style={baseInputStyle}
-              />
+              <div style={{ display: "grid", gap: "0.4rem" }}>
+                <label style={{ fontSize: "0.8rem", opacity: 0.6 }}>
+                  Título (EN)
+                </label>
+                <input
+                  placeholder="Título (EN)"
+                  value={formData.title}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
+                  required
+                  maxLength={100}
+                  style={baseInputStyle}
+                />
+              </div>
+              <div style={{ display: "grid", gap: "0.4rem" }}>
+                <label style={{ fontSize: "0.8rem", opacity: 0.6 }}>
+                  Título (ES)
+                </label>
+                <input
+                  placeholder="Título (ES)"
+                  value={formData.titleEs}
+                  onChange={(e) =>
+                    setFormData({ ...formData, titleEs: e.target.value })
+                  }
+                  required
+                  maxLength={100}
+                  style={baseInputStyle}
+                />
+              </div>
             </div>
 
             <div
@@ -204,26 +276,36 @@ export default function AdminProjects() {
                 gap: "1rem",
               }}
             >
-              <textarea
-                placeholder="Short Description (EN)"
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                required
-                maxLength={300}
-                style={baseInputStyle}
-              />
-              <textarea
-                placeholder="Descripción corta (ES)"
-                value={formData.descriptionEs}
-                onChange={(e) =>
-                  setFormData({ ...formData, descriptionEs: e.target.value })
-                }
-                required
-                maxLength={300}
-                style={baseInputStyle}
-              />
+              <div style={{ display: "grid", gap: "0.4rem" }}>
+                <label style={{ fontSize: "0.8rem", opacity: 0.6 }}>
+                  Short Desc (EN)
+                </label>
+                <textarea
+                  placeholder="Short Description (EN)"
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  required
+                  maxLength={300}
+                  style={baseInputStyle}
+                />
+              </div>
+              <div style={{ display: "grid", gap: "0.4rem" }}>
+                <label style={{ fontSize: "0.8rem", opacity: 0.6 }}>
+                  Desc Corta (ES)
+                </label>
+                <textarea
+                  placeholder="Descripción corta (ES)"
+                  value={formData.descriptionEs}
+                  onChange={(e) =>
+                    setFormData({ ...formData, descriptionEs: e.target.value })
+                  }
+                  required
+                  maxLength={300}
+                  style={baseInputStyle}
+                />
+              </div>
             </div>
 
             <div
@@ -233,27 +315,40 @@ export default function AdminProjects() {
                 gap: "1rem",
               }}
             >
-              <textarea
-                placeholder="Long Description (EN)"
-                value={formData.longDescription}
-                onChange={(e) =>
-                  setFormData({ ...formData, longDescription: e.target.value })
-                }
-                maxLength={5000}
-                style={{ ...baseInputStyle, minHeight: "80px" }}
-              />
-              <textarea
-                placeholder="Descripción larga (ES)"
-                value={formData.longDescriptionEs}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    longDescriptionEs: e.target.value,
-                  })
-                }
-                maxLength={5000}
-                style={{ ...baseInputStyle, minHeight: "80px" }}
-              />
+              <div style={{ display: "grid", gap: "0.4rem" }}>
+                <label style={{ fontSize: "0.8rem", opacity: 0.6 }}>
+                  Long Desc (EN)
+                </label>
+                <textarea
+                  placeholder="Long Description (EN)"
+                  value={formData.longDescription}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      longDescription: e.target.value,
+                    })
+                  }
+                  maxLength={5000}
+                  style={{ ...baseInputStyle, minHeight: "80px" }}
+                />
+              </div>
+              <div style={{ display: "grid", gap: "0.4rem" }}>
+                <label style={{ fontSize: "0.8rem", opacity: 0.6 }}>
+                  Desc Larga (ES)
+                </label>
+                <textarea
+                  placeholder="Descripción larga (ES)"
+                  value={formData.longDescriptionEs}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      longDescriptionEs: e.target.value,
+                    })
+                  }
+                  maxLength={5000}
+                  style={{ ...baseInputStyle, minHeight: "80px" }}
+                />
+              </div>
             </div>
 
             <div
@@ -263,27 +358,37 @@ export default function AdminProjects() {
                 gap: "1rem",
               }}
             >
-              <select
-                value={formData.category}
-                onChange={(e) =>
-                  setFormData({ ...formData, category: e.target.value })
-                }
-                style={selectStyle}
-              >
-                <option value="Frontend">Frontend</option>
-                <option value="Backend">Backend</option>
-                <option value="Mobile">Mobile</option>
-                <option value="Full Stack">Full Stack</option>
-              </select>
-              <input
-                placeholder="Tecnologías (coma)"
-                value={formData.technologies}
-                onChange={(e) =>
-                  setFormData({ ...formData, technologies: e.target.value })
-                }
-                maxLength={200}
-                style={baseInputStyle}
-              />
+              <div style={{ display: "grid", gap: "0.4rem" }}>
+                <label style={{ fontSize: "0.8rem", opacity: 0.6 }}>
+                  Categoría
+                </label>
+                <select
+                  value={formData.category}
+                  onChange={(e) =>
+                    setFormData({ ...formData, category: e.target.value })
+                  }
+                  style={selectStyle}
+                >
+                  <option value="Frontend">Frontend</option>
+                  <option value="Backend">Backend</option>
+                  <option value="Mobile">Mobile</option>
+                  <option value="Full Stack">Full Stack</option>
+                </select>
+              </div>
+              <div style={{ display: "grid", gap: "0.4rem" }}>
+                <label style={{ fontSize: "0.8rem", opacity: 0.6 }}>
+                  Tecnologías (separadas por coma)
+                </label>
+                <input
+                  placeholder="React, Node, etc."
+                  value={formData.technologies}
+                  onChange={(e) =>
+                    setFormData({ ...formData, technologies: e.target.value })
+                  }
+                  maxLength={200}
+                  style={baseInputStyle}
+                />
+              </div>
             </div>
 
             <div
@@ -293,24 +398,34 @@ export default function AdminProjects() {
                 gap: "1rem",
               }}
             >
-              <input
-                placeholder="GitHub URL"
-                value={formData.githubUrl}
-                onChange={(e) =>
-                  setFormData({ ...formData, githubUrl: e.target.value })
-                }
-                maxLength={255}
-                style={baseInputStyle}
-              />
-              <input
-                placeholder="Live URL"
-                value={formData.liveUrl}
-                onChange={(e) =>
-                  setFormData({ ...formData, liveUrl: e.target.value })
-                }
-                maxLength={255}
-                style={baseInputStyle}
-              />
+              <div style={{ display: "grid", gap: "0.4rem" }}>
+                <label style={{ fontSize: "0.8rem", opacity: 0.6 }}>
+                  GitHub URL
+                </label>
+                <input
+                  placeholder="GitHub URL"
+                  value={formData.githubUrl}
+                  onChange={(e) =>
+                    setFormData({ ...formData, githubUrl: e.target.value })
+                  }
+                  maxLength={255}
+                  style={baseInputStyle}
+                />
+              </div>
+              <div style={{ display: "grid", gap: "0.4rem" }}>
+                <label style={{ fontSize: "0.8rem", opacity: 0.6 }}>
+                  Live URL
+                </label>
+                <input
+                  placeholder="Live URL"
+                  value={formData.liveUrl}
+                  onChange={(e) =>
+                    setFormData({ ...formData, liveUrl: e.target.value })
+                  }
+                  maxLength={255}
+                  style={baseInputStyle}
+                />
+              </div>
             </div>
 
             <div
@@ -318,24 +433,30 @@ export default function AdminProjects() {
                 display: "grid",
                 gridTemplateColumns: "1fr 1fr",
                 gap: "1rem",
-                alignItems: "center",
+                alignItems: "flex-end",
               }}
             >
-              <input
-                type="number"
-                placeholder="Orden"
-                value={formData.order}
-                onChange={(e) =>
-                  setFormData({ ...formData, order: Number(e.target.value) })
-                }
-                style={baseInputStyle}
-              />
+              <div style={{ display: "grid", gap: "0.4rem" }}>
+                <label style={{ fontSize: "0.8rem", opacity: 0.6 }}>
+                  Orden
+                </label>
+                <input
+                  type="number"
+                  placeholder="Orden"
+                  value={formData.order}
+                  onChange={(e) =>
+                    setFormData({ ...formData, order: Number(e.target.value) })
+                  }
+                  style={baseInputStyle}
+                />
+              </div>
               <label
                 style={{
                   display: "flex",
                   alignItems: "center",
                   gap: "0.5rem",
                   cursor: "pointer",
+                  paddingBottom: "0.8rem",
                 }}
               >
                 <input
@@ -373,7 +494,9 @@ export default function AdminProjects() {
             <button
               type="submit"
               style={{
-                background: "var(--color-primary)",
+                background: editingId
+                  ? "var(--color-secondary)"
+                  : "var(--color-primary)",
                 color: "black",
                 padding: "0.8rem",
                 borderRadius: "8px",
@@ -387,7 +510,8 @@ export default function AdminProjects() {
                 marginTop: "0.5rem",
               }}
             >
-              <Plus size={20} /> Guardar Proyecto
+              {editingId ? <Pencil size={20} /> : <Plus size={20} />}{" "}
+              {editingId ? "Actualizar Proyecto" : "Guardar Proyecto"}
             </button>
           </form>
         </div>
@@ -407,7 +531,7 @@ export default function AdminProjects() {
                   background: "rgba(0,0,0,0.3)",
                   padding: "1.5rem",
                   borderRadius: "12px",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  border: `1px solid ${editingId === project.id ? "var(--color-secondary)" : "rgba(255,255,255,0.1)"}`,
                   position: "relative",
                   display: "flex",
                   gap: "1rem",
@@ -443,19 +567,37 @@ export default function AdminProjects() {
                     >
                       {project.title}
                     </h3>
-                    <button
-                      onClick={() => handleDelete(project.id)}
-                      style={{
-                        background: "rgba(255,0,0,0.1)",
-                        color: "#ff4444",
-                        border: "none",
-                        padding: "0.5rem",
-                        borderRadius: "8px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <Trash2 size={18} />
-                    </button>
+                    <div style={{ display: "flex", gap: "0.5rem" }}>
+                      <button
+                        onClick={() => handleEdit(project)}
+                        style={{
+                          background: "rgba(255,255,255,0.1)",
+                          color: "white",
+                          border: "none",
+                          padding: "0.5rem",
+                          borderRadius: "8px",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.3rem",
+                        }}
+                      >
+                        <Pencil size={14} /> Editar
+                      </button>
+                      <button
+                        onClick={() => handleDelete(project.id)}
+                        style={{
+                          background: "rgba(255,0,0,0.1)",
+                          color: "#ff4444",
+                          border: "none",
+                          padding: "0.5rem",
+                          borderRadius: "8px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
                   </div>
                   <span
                     style={{
@@ -463,7 +605,7 @@ export default function AdminProjects() {
                       background: "rgba(255,255,255,0.1)",
                       padding: "0.2rem 0.6rem",
                       borderRadius: "99px",
-                      marginTop: "0.5rem",
+                      marginTop: "0.3rem",
                       display: "inline-block",
                     }}
                   >

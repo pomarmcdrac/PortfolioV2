@@ -8,11 +8,13 @@ export const translations = {
       ctaProject: "Ver Portafolio",
       ctaBlog: "Leer Blog",
       ctaCV: "Descargar CV",
+      ctaMeet: "Agendar Meet",
     },
     services: {
       title: "Mis Servicios",
       subtitle:
         "Soluciones integrales respaldadas por años de experiencia en Fintech y E-commerce.",
+      cta: "Impulsa tu idea ahora",
       fullstack: {
         title: "Desarrollo Web & E-commerce",
         desc: "Experiencia certificada en Next.js y React. Optimización de plataformas de venta.",
@@ -33,6 +35,7 @@ export const translations = {
       contactDesc:
         "Entusiasmado por contribuir a proyectos destacados con habilidades técnicas sólidas.",
       contactBtn: "Hablemos",
+      contactMeet: "O agendar un Meet ahora",
       filterAll: "Todos",
       noProjects: "Nuevos proyectos en fase de desarrollo y despliegue.",
       noExperience: "Trayectoria profesional en proceso de actualización.",
@@ -41,6 +44,67 @@ export const translations = {
       home: "Inicio",
       projects: "Proyectos",
       contact: "Contacto",
+    },
+    booking: {
+      title: "Agendar una Reunión",
+      subtitle: "Selecciona un espacio y conectemos.",
+      steps: {
+        topic: "Selección de Tema",
+        date: "Elige una Fecha",
+        time: "Horarios Disponibles",
+        details: "Tus Datos",
+      },
+      topics: {
+        project: "Propuesta de Proyecto",
+        projectDesc: "Discutamos tu próxima gran idea y cómo puedo ayudarte.",
+        mentorship: "Consultoría Técnica",
+        mentorshipDesc:
+          "Revisión de código, arquitectura o consejos tecnológicos.",
+        hire: "Entrevista Laboral",
+        hireDesc: "Charlas sobre oportunidades laborales y fit cultural.",
+        coffee: "Coffee Chat",
+        coffeeDesc: "Networking rápido y charlas informales sobre tecnología.",
+      },
+      form: {
+        name: "Nombre Completo",
+        email: "Correo Electrónico",
+        phone: "Teléfono de Contacto",
+        message: "Notas / Contexto",
+        placeholderName: "Tu nombre",
+        placeholderEmail: "tu@email.com",
+        placeholderPhone: "+52 123 456 7890",
+        placeholderMessage: "¿De qué te gustaría hablar?",
+        submit: "Confirmar Reserva",
+        loading: "Procesando...",
+        back: "Volver",
+        next: "Siguiente",
+        continue: "Continuar",
+        selected: "Seleccionado",
+      },
+      success: {
+        title: "¡Solicitud Enviada!",
+        message:
+          "Te hemos enviado un correo para que confirmes tu reserva. Por favor, revisa tu bandeja de entrada (y la carpeta de spam).",
+        back: "Volver al Inicio",
+      },
+      confirm: {
+        loading: "Confirmando tu reserva...",
+        loadingDesc: "Estamos validando tu token de confirmación.",
+        success: "¡Email Verificado y Reserva Confirmada!",
+        successDesc:
+          "Tu dirección de correo ha sido validada y tu sesión ha sido agendada con éxito. Te hemos enviado un correo final con los detalles.",
+        error: "Error de Confirmación",
+        errorDesc:
+          "El token no es válido o ha expirado. Por favor, intenta realizar la reserva nuevamente o contáctanos.",
+        back: "Volver al Inicio",
+      },
+      error: {
+        title: "Ups, algo falló",
+        message:
+          "Hubo un problema al procesar tu solicitud. Por favor, revisa tus datos e inténtalo de nuevo.",
+        back: "Reintentar",
+        home: "Volver al Inicio",
+      },
     },
   },
   EN: {
@@ -52,11 +116,13 @@ export const translations = {
       ctaProject: "View Portfolio",
       ctaBlog: "Read Blog",
       ctaCV: "Download CV",
+      ctaMeet: "Schedule Meet",
     },
     services: {
       title: "My Services",
       subtitle:
         "Comprehensive solutions backed by years of experience in Fintech and E-commerce.",
+      cta: "Boost your idea now",
       fullstack: {
         title: "Web Dev & E-commerce",
         desc: "Certified expertise in Next.js and React. Optimization of sales platforms.",
@@ -77,6 +143,7 @@ export const translations = {
       contactDesc:
         "Excited to contribute to outstanding projects with solid technical skills.",
       contactBtn: "Let's Talk",
+      contactMeet: "Or schedule a Meet now",
       filterAll: "All",
       noProjects: "New projects in development and deployment phase.",
       noExperience: "Professional trajectory currently being updated.",
@@ -85,6 +152,66 @@ export const translations = {
       home: "Home",
       projects: "Projects",
       contact: "Contact",
+    },
+    booking: {
+      title: "Schedule a Meeting",
+      subtitle: "Select a slot and let's connect.",
+      steps: {
+        topic: "Topic Selection",
+        date: "Choose a Date",
+        time: "Available Times",
+        details: "Your Details",
+      },
+      topics: {
+        project: "Project Proposal",
+        projectDesc: "Let's discuss your next big idea and how I can help.",
+        mentorship: "Technical Consulting",
+        mentorshipDesc: "Code review, architecture, or tech advice.",
+        hire: "Job Interview",
+        hireDesc: "Talks about job opportunities and cultural fit.",
+        coffee: "Coffee Chat",
+        coffeeDesc: "Quick networking and informal tech talks.",
+      },
+      form: {
+        name: "Full Name",
+        email: "Email Address",
+        phone: "Phone Number",
+        message: "Notes / Context",
+        placeholderName: "Your name",
+        placeholderEmail: "you@email.com",
+        placeholderPhone: "+1 123 456 7890",
+        placeholderMessage: "What would you like to talk about?",
+        submit: "Confirm Booking",
+        loading: "Processing...",
+        back: "Back",
+        next: "Next",
+        continue: "Continue",
+        selected: "Selected",
+      },
+      success: {
+        title: "Request Sent!",
+        message:
+          "We've sent you an email to confirm your booking. Please check your inbox (and spam folder).",
+        back: "Back to Home",
+      },
+      confirm: {
+        loading: "Confirming your booking...",
+        loadingDesc: "We are validating your confirmation token.",
+        success: "Email Verified & Booking Confirmed!",
+        successDesc:
+          "Your email address has been validated and your session has been successfully scheduled. We've sent you a final confirmation email.",
+        error: "Confirmation Error",
+        errorDesc:
+          "The token is invalid or has expired. Please try booking again or contact us.",
+        back: "Back to Home",
+      },
+      error: {
+        title: "Oops, something went wrong",
+        message:
+          "There was a problem processing your request. Please check your details and try again.",
+        back: "Retry",
+        home: "Back to Home",
+      },
     },
   },
 };

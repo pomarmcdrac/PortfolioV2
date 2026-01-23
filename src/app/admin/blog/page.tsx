@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getBlogs, createBlog, deleteBlog } from "@/lib/api";
-import { Plus, Trash2, ExternalLink } from "lucide-react";
+import { getBlogs, createBlog, updateBlog, deleteBlog } from "@/lib/api";
+import { Plus, Trash2, Pencil, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 // Estilos de inputs (reutilizados del estándar)
@@ -21,6 +21,7 @@ const baseInputStyle: any = {
 export default function AdminBlog() {
   const [blogs, setBlogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const router = useRouter();
 
   // Form state
@@ -65,6 +66,37 @@ export default function AdminBlog() {
     }
   };
 
+  const handleEdit = (blog: any) => {
+    setEditingId(blog.id || blog.slug);
+    setFormData({
+      title: blog.title,
+      titleEs: blog.titleEs || blog.title,
+      slug: blog.slug,
+      date: blog.date?.split("T")[0] || new Date().toISOString().split("T")[0],
+      excerpt: blog.excerpt,
+      excerptEs: blog.excerptEs || blog.excerpt,
+      tags: Array.isArray(blog.tags) ? blog.tags.join(", ") : blog.tags || "",
+      content: blog.content,
+      contentEs: blog.contentEs || blog.content,
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const resetForm = () => {
+    setEditingId(null);
+    setFormData({
+      title: "",
+      titleEs: "",
+      slug: "",
+      date: new Date().toISOString().split("T")[0],
+      excerpt: "",
+      excerptEs: "",
+      tags: "",
+      content: "",
+      contentEs: "",
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const payload = {
@@ -82,22 +114,19 @@ export default function AdminBlog() {
           .replace(/(^-|-$)+/g, ""),
     };
 
-    const success = await createBlog(payload);
-    if (success) {
-      setFormData({
-        title: "",
-        titleEs: "",
-        slug: "",
-        date: new Date().toISOString().split("T")[0],
-        excerpt: "",
-        excerptEs: "",
-        tags: "",
-        content: "",
-        contentEs: "",
-      });
-      loadBlogs();
+    let success = false;
+    if (editingId) {
+      success = await updateBlog(editingId, payload);
     } else {
-      alert("Error al crear el post");
+      success = await createBlog(payload);
+    }
+
+    if (success) {
+      resetForm();
+      loadBlogs();
+      alert(editingId ? "Post actualizado" : "Post publicado");
+    } else {
+      alert("Error al guardar el post");
     }
   };
 
@@ -130,11 +159,35 @@ export default function AdminBlog() {
             padding: "1.5rem",
             borderRadius: "16px",
             height: "fit-content",
+            position: "sticky",
+            top: "2rem",
           }}
         >
-          <h2 style={{ marginBottom: "1.5rem", fontSize: "1.2rem" }}>
-            Escribir Nuevo Post
-          </h2>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "1.5rem",
+            }}
+          >
+            <h2 style={{ fontSize: "1.2rem", margin: 0 }}>
+              {editingId ? "Editar Post" : "Escribir Nuevo Post"}
+            </h2>
+            {editingId && (
+              <button
+                onClick={resetForm}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "white",
+                  cursor: "pointer",
+                }}
+              >
+                <X size={20} />
+              </button>
+            )}
+          </div>
           <form
             onSubmit={handleSubmit}
             style={{ display: "grid", gap: "1rem" }}
@@ -274,7 +327,9 @@ export default function AdminBlog() {
             <button
               type="submit"
               style={{
-                background: "var(--color-primary)",
+                background: editingId
+                  ? "var(--color-secondary)"
+                  : "var(--color-primary)",
                 color: "black",
                 padding: "0.8rem",
                 borderRadius: "8px",
@@ -288,7 +343,8 @@ export default function AdminBlog() {
                 marginTop: "0.5rem",
               }}
             >
-              <Plus size={20} /> Publicar Post
+              {editingId ? <Pencil size={20} /> : <Plus size={20} />}{" "}
+              {editingId ? "Actualizar Post" : "Publicar Post"}
             </button>
           </form>
         </div>
@@ -308,7 +364,7 @@ export default function AdminBlog() {
                   background: "rgba(0,0,0,0.3)",
                   padding: "1.5rem",
                   borderRadius: "12px",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  border: `1px solid ${editingId === (blog.id || blog.slug) ? "var(--color-secondary)" : "rgba(255,255,255,0.1)"}`,
                   position: "relative",
                 }}
               >
@@ -340,19 +396,34 @@ export default function AdminBlog() {
                     </span>
                   </div>
 
-                  <button
-                    onClick={() => handleDelete(blog.id || blog.slug)}
-                    style={{
-                      background: "rgba(255,0,0,0.1)",
-                      color: "#ff4444",
-                      border: "none",
-                      padding: "0.5rem",
-                      borderRadius: "8px",
-                      cursor: "pointer",
-                    }}
-                  >
-                    <Trash2 size={18} />
-                  </button>
+                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                    <button
+                      onClick={() => handleEdit(blog)}
+                      style={{
+                        background: "rgba(255,255,255,0.1)",
+                        color: "white",
+                        border: "none",
+                        padding: "0.5rem",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <Pencil size={18} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(blog.id || blog.slug)}
+                      style={{
+                        background: "rgba(255,0,0,0.1)",
+                        color: "#ff4444",
+                        border: "none",
+                        padding: "0.5rem",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
                 </div>
 
                 <p

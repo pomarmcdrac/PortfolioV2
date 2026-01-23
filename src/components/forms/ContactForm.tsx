@@ -98,15 +98,16 @@ export default function ContactForm() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onSubmit={handleSubmit(onSubmit)}
-            style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
+            style={{ display: "flex", flexDirection: "column", gap: "2rem" }}
           >
             <div>
               <label
                 style={{
                   display: "block",
-                  marginBottom: "0.5rem",
+                  marginBottom: "0.8rem",
                   color: "rgba(255,255,255,0.6)",
-                  fontSize: "0.9rem",
+                  fontSize: "0.95rem",
+                  fontWeight: "600",
                 }}
               >
                 Nombre

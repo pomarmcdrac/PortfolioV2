@@ -109,3 +109,27 @@ export async function DELETE(
   const data = await response.json();
   return NextResponse.json(data, { status: response.status });
 }
+
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ path: string[] }> },
+) {
+  const { path } = await params;
+  const pathStr = path.join("/");
+  const apiUrl = process.env.API_URL;
+
+  const contentType = request.headers.get("content-type");
+  const body = await request.json();
+
+  const response = await fetch(`${apiUrl}/${pathStr}`, {
+    method: "PUT",
+    headers: {
+      Authorization: request.headers.get("Authorization") || "",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  const data = await response.json();
+  return NextResponse.json(data, { status: response.status });
+}

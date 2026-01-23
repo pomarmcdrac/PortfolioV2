@@ -39,16 +39,8 @@ export default async function ProjectPage({
         <h1 style={{ fontSize: "2rem", marginBottom: "1rem" }}>
           Proyecto no encontrado 😢
         </h1>
-        <Link
-          href="/#projects"
-          style={{
-            color: "var(--color-primary)",
-            display: "flex",
-            alignItems: "center",
-            gap: "0.5rem",
-          }}
-        >
-          <ArrowLeft size={20} /> Volver al portafolio
+        <Link href="/#projects" className={styles.hoverBackBtn}>
+          <ArrowLeft size={18} /> <span>Volver al portafolio</span>
         </Link>
       </div>
     );
@@ -71,7 +63,7 @@ export default async function ProjectPage({
       {/* Navigation */}
       <nav>
         <Link href="/#projects" className={styles.hoverBackBtn}>
-          <ArrowLeft size={18} /> Volver a Proyectos
+          <ArrowLeft size={18} /> <span>Volver a Proyectos</span>
         </Link>
       </nav>
 

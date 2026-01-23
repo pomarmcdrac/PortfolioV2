@@ -1,8 +1,9 @@
 "use client";
 
-import { Mail, ArrowRight } from "lucide-react";
+import { Mail, ArrowRight, CalendarCheck } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import ContactForm from "../forms/ContactForm";
+import Link from "next/link";
 
 export default function ContactCTA() {
   const { t } = useLanguage();
@@ -37,9 +38,7 @@ export default function ContactCTA() {
             flexDirection: "column",
             alignItems: "center",
             gap: "2.5rem",
-            maxWidth: "1000px",
             width: "100%",
-            margin: "0 auto",
           }}
         >
           <div style={{ textAlign: "center", maxWidth: "600px" }}>
@@ -55,10 +54,43 @@ export default function ContactCTA() {
               style={{
                 fontSize: "1.2rem",
                 color: "rgba(255,255,255,0.7)",
+                marginBottom: "2rem",
               }}
             >
               {t.sections.contactDesc}
             </p>
+
+            <Link
+              href="/booking"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                padding: "0.8rem 1.5rem",
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: "12px",
+                color: "white",
+                textDecoration: "none",
+                fontWeight: "600",
+                fontSize: "0.9rem",
+                transition: "all 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(255,255,255,0.1)";
+                e.currentTarget.style.borderColor = "var(--color-primary)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+                e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+              }}
+            >
+              <CalendarCheck
+                size={18}
+                style={{ color: "var(--color-primary)" }}
+              />
+              {t.sections.contactMeet}
+            </Link>
           </div>
 
           <ContactForm />

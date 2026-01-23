@@ -13,7 +13,7 @@ import ExperienceTimeline from "@/components/sections/ExperienceTimeline";
 import Services from "@/components/sections/Services";
 import ContactCTA from "@/components/sections/ContactCTA";
 import { motion, AnimatePresence } from "framer-motion";
-import { Rocket } from "lucide-react";
+import { Rocket, CalendarCheck } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useEffect } from "react";
 
@@ -146,7 +146,7 @@ export default function Home() {
               margin: "0 auto",
               fontSize: "1.25rem",
               color: "rgba(255,255,255,0.7)",
-              lineHeight: 1.6,
+              lineHeight: 1.8,
               whiteSpace: "pre-line",
             }}
           >
@@ -177,6 +177,7 @@ export default function Home() {
             gap: "1rem",
             flexWrap: "wrap",
             justifyContent: "center",
+            marginTop: "1rem",
           }}
         >
           <a
@@ -184,50 +185,68 @@ export default function Home() {
             style={{
               padding: "1rem 2rem",
               background: "var(--color-primary)",
-              color: "white",
+              color: "black",
               borderRadius: "99px",
               border: "none",
               cursor: "pointer",
               fontWeight: "700",
-              boxShadow: "0 0 20px -5px var(--color-primary-glow)",
+              boxShadow: "0 10px 20px -5px var(--color-primary-glow)",
               fontSize: "1rem",
+              transition: "transform 0.2s",
             }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.transform = "scale(1.05)")
+            }
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
           >
             {t.hero.ctaProject}
+          </a>
+          <a
+            href="/booking"
+            style={{
+              padding: "1rem 2rem",
+              background: "white",
+              color: "black",
+              borderRadius: "99px",
+              border: "none",
+              cursor: "pointer",
+              fontWeight: "700",
+              boxShadow: "0 10px 20px -5px rgba(255,255,255,0.2)",
+              fontSize: "1rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              transition: "transform 0.2s",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.transform = "scale(1.05)")
+            }
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+          >
+            <CalendarCheck size={18} /> {t.hero.ctaMeet}
           </a>
           <a
             href="/blog"
             style={{
               padding: "1rem 2rem",
-              background: "rgba(255,255,255,0.1)",
+              background: "rgba(255,255,255,0.05)",
               color: "white",
               borderRadius: "99px",
-              border: "1px solid rgba(255,255,255,0.2)",
+              border: "1px solid rgba(255,255,255,0.1)",
               cursor: "pointer",
               fontWeight: "600",
               fontSize: "1rem",
               backdropFilter: "blur(10px)",
+              transition: "background 0.2s",
             }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.background = "rgba(255,255,255,0.1)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.background = "rgba(255,255,255,0.05)")
+            }
           >
             {t.hero.ctaBlog}
-          </a>
-          <a
-            href="/cv.pdf"
-            download="Omar_Morales_CV.pdf"
-            style={{
-              padding: "1rem 2rem",
-              background: "transparent",
-              color: "rgba(255,255,255,0.7)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: "99px",
-              cursor: "pointer",
-              fontWeight: "600",
-              fontSize: "1rem",
-              textDecoration: "none",
-              display: "inline-block",
-            }}
-          >
-            {t.hero.ctaCV}
           </a>
         </motion.div>
       </section>

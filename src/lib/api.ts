@@ -12,6 +12,16 @@ const getBaseUrl = () => {
 const AUTH_URL = "/api/auth/login";
 
 /**
+ * Helper to extract data from the 'result' field of the API response if it exists.
+ */
+function extractResult(data: any): any {
+  if (data && typeof data === "object" && "result" in data) {
+    return data.result;
+  }
+  return data;
+}
+
+/**
  * Fetches all projects from the API.
  */
 export async function getProjects(lang?: string): Promise<Project[]> {
@@ -31,15 +41,14 @@ export async function getProjects(lang?: string): Promise<Project[]> {
       throw new Error("Failed to fetch projects");
     }
 
-    const data = await response.json();
+    const rawData = await response.json();
+    const data = extractResult(rawData);
 
     // Mapeo de campos: de 'technologies' (API) a 'techStack' (Local)
-    return data.map((p: any) => ({
+    return (Array.isArray(data) ? data : []).map((p: any) => ({
       ...p,
       techStack: p.technologies || [],
       repoUrl: p.githubUrl,
-      // Si la API devuelve el contenido localizado en title/description/longDescription
-      // según el parámetro lang, no necesitamos mapear titleEs, etc. manualmente aquí.
     }));
   } catch (error) {
     console.error("Error fetching projects:", error);
@@ -67,10 +76,11 @@ export async function getExperience(lang?: string): Promise<ExperienceItem[]> {
       throw new Error("Failed to fetch experience");
     }
 
-    const data = await response.json();
+    const rawData = await response.json();
+    const data = extractResult(rawData);
 
     // Mapeo de campos: de 'position' (API) a 'role' (Local)
-    return data.map((e: any) => ({
+    return (Array.isArray(data) ? data : []).map((e: any) => ({
       ...e,
       role: e.position,
       period: `${e.startDate} - ${e.current ? "Presente" : e.endDate}`,
@@ -99,6 +109,31 @@ export async function createExperience(experienceData: any): Promise<boolean> {
     return response.ok;
   } catch (error) {
     console.error("Create experience error:", error);
+    return false;
+  }
+}
+
+/**
+ * Update an experience item
+ */
+export async function updateExperience(
+  id: string,
+  experienceData: any,
+): Promise<boolean> {
+  const baseUrl = getBaseUrl();
+  try {
+    const response = await fetch(`${baseUrl}/experience/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(experienceData),
+    });
+
+    return response.ok;
+  } catch (error) {
+    console.error("Update experience error:", error);
     return false;
   }
 }
@@ -145,7 +180,8 @@ export async function getProjectById(
       throw new Error("Failed to fetch project");
     }
 
-    const p = await response.json();
+    const rawData = await response.json();
+    const p = extractResult(rawData);
 
     // Mapeo de campos
     return {
@@ -171,8 +207,9 @@ export async function getSkills(): Promise<string[]> {
 
     if (!response.ok) throw new Error("Failed to fetch skills");
 
-    const data = await response.json();
-    return data.map((s: any) => s.name || s);
+    const rawData = await response.json();
+    const data = extractResult(rawData);
+    return (Array.isArray(data) ? data : []).map((s: any) => s.name || s);
   } catch (error) {
     console.error("Error fetching skills:", error);
     throw error;
@@ -189,7 +226,8 @@ export async function getSkillsFull(): Promise<any[]> {
       next: { revalidate: 3600 },
     });
     if (!response.ok) throw new Error("Failed to fetch skills");
-    return await response.json();
+    const rawData = await response.json();
+    return extractResult(rawData) || [];
   } catch (error) {
     console.error("Error fetching full skills:", error);
     return [];
@@ -214,7 +252,8 @@ export async function getAbout(lang?: string): Promise<any> {
 
     if (!response.ok) throw new Error("Failed to fetch about info");
 
-    return await response.json();
+    const rawData = await response.json();
+    return extractResult(rawData);
   } catch (error) {
     console.error("Error fetching about info:", error);
     return null;
@@ -228,7 +267,7 @@ export async function updateAbout(aboutData: any): Promise<boolean> {
   const baseUrl = getBaseUrl();
   try {
     const response = await fetch(`${baseUrl}/about`, {
-      method: "POST", // Using POST for update/create as per typical conventions if PUT not specified
+      method: "POST", // Using POST for about update as it acts like Upsert
       headers: {
         "Content-Type": "application/json",
         ...getAuthHeader(),
@@ -342,7 +381,8 @@ export async function uploadImage(file: File): Promise<string | null> {
 
     if (!response.ok) throw new Error("Upload failed");
 
-    const data = await response.json();
+    const rawData = await response.json();
+    const data = extractResult(rawData);
     return data.url || data.secure_url || data;
   } catch (error) {
     console.error("Upload error:", error);
@@ -368,6 +408,31 @@ export async function createProject(projectData: any): Promise<boolean> {
     return response.ok;
   } catch (error) {
     console.error("Create project error:", error);
+    return false;
+  }
+}
+
+/**
+ * Update a project
+ */
+export async function updateProject(
+  id: string,
+  projectData: any,
+): Promise<boolean> {
+  const baseUrl = getBaseUrl();
+  try {
+    const response = await fetch(`${baseUrl}/projects/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(projectData),
+    });
+
+    return response.ok;
+  } catch (error) {
+    console.error("Update project error:", error);
     return false;
   }
 }
@@ -413,6 +478,31 @@ export async function createSkill(skillData: any): Promise<boolean> {
 }
 
 /**
+ * Update a skill
+ */
+export async function updateSkill(
+  id: string,
+  skillData: any,
+): Promise<boolean> {
+  const baseUrl = getBaseUrl();
+  try {
+    const response = await fetch(`${baseUrl}/skills/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(skillData),
+    });
+
+    return response.ok;
+  } catch (error) {
+    console.error("Update skill error:", error);
+    return false;
+  }
+}
+
+/**
  * Delete a skill
  */
 export async function deleteSkill(id: string): Promise<boolean> {
@@ -447,14 +537,14 @@ export async function getBlogs(lang?: string): Promise<any[]> {
     });
 
     if (!response.ok) {
-      // Si el endpoint no existe o falla, regresamos array vacío sin hacer ruido
       if (response.status === 404) return [];
       console.warn("Failed to fetch blogs:", response.statusText);
       return [];
     }
-    return await response.json();
+    const rawData = await response.json();
+    const data = extractResult(rawData);
+    return Array.isArray(data) ? data : [];
   } catch (error) {
-    // Si la API está caída o no existe conexión, regresamos vacío
     return [];
   }
 }
@@ -467,6 +557,27 @@ export async function createBlog(blogData: any): Promise<boolean> {
   try {
     const response = await fetch(`${baseUrl}/blogs`, {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(blogData),
+    });
+
+    return response.ok;
+  } catch (error) {
+    return false;
+  }
+}
+
+/**
+ * Update a blog post
+ */
+export async function updateBlog(id: string, blogData: any): Promise<boolean> {
+  const baseUrl = getBaseUrl();
+  try {
+    const response = await fetch(`${baseUrl}/blogs/${id}`, {
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
         ...getAuthHeader(),
@@ -494,5 +605,81 @@ export async function deleteBlog(id: string): Promise<boolean> {
     return response.ok;
   } catch (error) {
     return false;
+  }
+}
+
+/**
+ * Create a new booking
+ */
+export async function createBooking(bookingData: any): Promise<any> {
+  const baseUrl = getBaseUrl();
+  try {
+    const response = await fetch(`${baseUrl}/booking/bookings`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(bookingData),
+    });
+
+    const rawData = await response.json();
+    if (!response.ok) {
+      console.error("Create booking error:", rawData);
+      return null;
+    }
+    return extractResult(rawData);
+  } catch (error) {
+    console.error("Create booking error:", error);
+    return null;
+  }
+}
+
+/**
+ * Confirm a booking with a token
+ */
+export async function confirmBooking(token: string): Promise<boolean> {
+  const baseUrl = getBaseUrl();
+  try {
+    const response = await fetch(
+      `${baseUrl}/booking/bookings/confirm?token=${token}`,
+      {
+        method: "GET",
+        headers: {
+          ...getAuthHeader(),
+        },
+      },
+    );
+
+    return response.ok;
+  } catch (error) {
+    console.error("Confirm booking error:", error);
+    return false;
+  }
+}
+
+/**
+ * Fetch available slots for a specific date
+ */
+export async function getAvailableSlots(date: string): Promise<string[]> {
+  const baseUrl = getBaseUrl();
+  try {
+    const response = await fetch(
+      `${baseUrl}/booking/bookings/available-slots?date=${date}`,
+      {
+        headers: {
+          ...getAuthHeader(),
+        },
+      },
+    );
+
+    if (!response.ok) return [];
+
+    const rawData = await response.json();
+    const data = extractResult(rawData);
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error("Error fetching slots:", error);
+    return [];
   }
 }

@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import {
   getSkillsFull,
   createSkill,
+  updateSkill,
   deleteSkill,
   uploadImage,
 } from "@/lib/api";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Pencil, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const baseInputStyle: any = {
@@ -36,6 +37,7 @@ const selectStyle: any = {
 export default function AdminSkills() {
   const [skills, setSkills] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const router = useRouter();
 
   // Form state
@@ -77,6 +79,31 @@ export default function AdminSkills() {
     }
   };
 
+  const handleEdit = (skill: any) => {
+    setEditingId(skill.id);
+    setFormData({
+      name: skill.name,
+      category: skill.category,
+      level: skill.level || 0,
+      icon: skill.icon || "",
+      yearsOfExperience: skill.yearsOfExperience || 0,
+      order: skill.order || 0,
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const resetForm = () => {
+    setEditingId(null);
+    setFormData({
+      name: "",
+      category: "Frontend",
+      level: 90,
+      icon: "",
+      yearsOfExperience: 1,
+      order: 0,
+    });
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -90,19 +117,19 @@ export default function AdminSkills() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = await createSkill(formData);
-    if (success) {
-      setFormData({
-        name: "",
-        category: "Frontend",
-        level: 90,
-        icon: "",
-        yearsOfExperience: 1,
-        order: 0,
-      });
-      loadSkills();
+    let success = false;
+    if (editingId) {
+      success = await updateSkill(editingId, formData);
     } else {
-      alert("Error al crear la skill");
+      success = await createSkill(formData);
+    }
+
+    if (success) {
+      resetForm();
+      loadSkills();
+      alert(editingId ? "Actualizado correctamente" : "Creado correctamente");
+    } else {
+      alert("Error al guardar la skill");
     }
   };
 
@@ -137,11 +164,35 @@ export default function AdminSkills() {
             padding: "1.5rem",
             borderRadius: "16px",
             height: "fit-content",
+            position: "sticky",
+            top: "2rem",
           }}
         >
-          <h2 style={{ marginBottom: "1.5rem", fontSize: "1.2rem" }}>
-            Agregar Nueva Skill
-          </h2>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "1.5rem",
+            }}
+          >
+            <h2 style={{ fontSize: "1.2rem", margin: 0 }}>
+              {editingId ? "Editar Skill" : "Agregar Nueva Skill"}
+            </h2>
+            {editingId && (
+              <button
+                onClick={resetForm}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "white",
+                  cursor: "pointer",
+                }}
+              >
+                <X size={20} />
+              </button>
+            )}
+          </div>
           <form
             onSubmit={handleSubmit}
             style={{ display: "grid", gap: "1rem" }}
@@ -247,7 +298,9 @@ export default function AdminSkills() {
             <button
               type="submit"
               style={{
-                background: "var(--color-primary)",
+                background: editingId
+                  ? "var(--color-secondary)"
+                  : "var(--color-primary)",
                 color: "black",
                 padding: "0.8rem",
                 borderRadius: "8px",
@@ -261,7 +314,8 @@ export default function AdminSkills() {
                 marginTop: "0.5rem",
               }}
             >
-              <Plus size={20} /> Guardar Skill
+              {editingId ? <Pencil size={20} /> : <Plus size={20} />}{" "}
+              {editingId ? "Actualizar" : "Guardar"} Skill
             </button>
           </form>
         </div>
@@ -285,7 +339,7 @@ export default function AdminSkills() {
                   background: "rgba(0,0,0,0.3)",
                   padding: "1rem",
                   borderRadius: "12px",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  border: `1px solid ${editingId === skill.id ? "var(--color-secondary)" : "rgba(255,255,255,0.1)"}`,
                   position: "relative",
                   display: "flex",
                   flexDirection: "column",
@@ -294,22 +348,41 @@ export default function AdminSkills() {
                   gap: "0.5rem",
                 }}
               >
-                <button
-                  onClick={() => handleDelete(skill.id)}
+                <div
                   style={{
                     position: "absolute",
-                    top: "0.5rem",
-                    right: "0.5rem",
-                    background: "rgba(255,0,0,0.1)",
-                    color: "#ff4444",
-                    border: "none",
-                    padding: "0.4rem",
-                    borderRadius: "6px",
-                    cursor: "pointer",
+                    top: "0.3rem",
+                    right: "0.3rem",
+                    display: "flex",
                   }}
                 >
-                  <Trash2 size={16} />
-                </button>
+                  <button
+                    onClick={() => handleEdit(skill)}
+                    style={{
+                      background: "none",
+                      color: "white",
+                      border: "none",
+                      padding: "0.4rem",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <Pencil size={16} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(skill.id)}
+                    style={{
+                      background: "none",
+                      color: "#ff4444",
+                      border: "none",
+                      padding: "0.4rem",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
 
                 {skill.icon ? (
                   <img

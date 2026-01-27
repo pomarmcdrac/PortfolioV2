@@ -550,6 +550,25 @@ export async function getBlogs(lang?: string): Promise<any[]> {
 }
 
 /**
+ * Fetch a single blog post by slug
+ */
+export async function getBlogBySlug(slug: string): Promise<any | null> {
+  const baseUrl = getBaseUrl();
+  try {
+    const response = await fetch(`${baseUrl}/blogs/${slug}`, {
+      next: { revalidate: 3600 },
+      headers: { ...getAuthHeader() },
+    });
+
+    if (!response.ok) return null;
+    const rawData = await response.json();
+    return extractResult(rawData);
+  } catch (error) {
+    return null;
+  }
+}
+
+/**
  * Create a new blog post
  */
 export async function createBlog(blogData: any): Promise<boolean> {
@@ -681,5 +700,184 @@ export async function getAvailableSlots(date: string): Promise<string[]> {
   } catch (error) {
     console.error("Error fetching slots:", error);
     return [];
+  }
+}
+
+/**
+ * Fetch schedule configuration
+ */
+export async function getScheduleConfig(): Promise<any> {
+  const baseUrl = getBaseUrl();
+  try {
+    // Fetch both config and blocked dates in parallel
+    const [configResponse, blockedDatesData] = await Promise.all([
+      fetch(`${baseUrl}/booking/schedule`, {
+        next: { revalidate: 0 },
+        headers: { ...getAuthHeader() },
+      }),
+      getBlockedDates(),
+    ]);
+
+    if (!configResponse.ok) {
+      // Return default config if endpoint fails or doesn't exist yet
+      return {
+        workDays: [1, 2, 3, 4, 5],
+        startHour: "09:00",
+        endHour: "17:00",
+        interval: 30,
+        blockedDates: [],
+        breaks: [],
+      };
+    }
+
+    const rawData = await configResponse.json();
+    const data = extractResult(rawData);
+
+    // Normalize breaks: backend might return startTime/endTime or start/end
+    const normalizedBreaks = (data.breaks || []).map((brk: any) => ({
+      start: brk.start || brk.startTime,
+      end: brk.end || brk.endTime,
+    }));
+
+    // Extract just the dates from blocked dates
+    const blockedDatesStrings = (blockedDatesData || []).map(
+      (bd: any) => bd.date,
+    );
+
+    return {
+      workDays: data.workingDays || [],
+      startHour: data.startHour || "09:00",
+      endHour: data.endHour || "17:00",
+      interval: data.slotDuration || 30,
+      blockedDates: blockedDatesStrings,
+      breaks: normalizedBreaks,
+    };
+  } catch (error) {
+    console.error("Error fetching schedule config:", error);
+    return {
+      workDays: [1, 2, 3, 4, 5],
+      startHour: "09:00",
+      endHour: "17:00",
+      interval: 30,
+      blockedDates: [],
+      breaks: [],
+    };
+  }
+}
+
+/**
+ * Update schedule configuration
+ */
+export async function updateScheduleConfig(config: any): Promise<boolean> {
+  const baseUrl = getBaseUrl();
+  try {
+    // Map frontend model to backend DTO
+    // Backend expects startTime/endTime for breaks, not start/end
+    const mappedBreaks = (config.breaks || []).map((brk: any) => ({
+      startTime: brk.start || brk.startTime,
+      endTime: brk.end || brk.endTime,
+    }));
+
+    const payload = {
+      workingDays: config.workDays,
+      startHour: config.startHour,
+      endHour: config.endHour,
+      slotDuration: config.interval,
+      breaks: mappedBreaks,
+      // blockedDates are handled via separate endpoints
+    };
+
+    const response = await fetch(`${baseUrl}/booking/schedule`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(payload),
+    });
+
+    return response.ok;
+  } catch (error) {
+    console.error("Error updating schedule config:", error);
+    return false;
+  }
+}
+
+/**
+ * Fetch all blocked dates
+ */
+export async function getBlockedDates(): Promise<any[]> {
+  const baseUrl = getBaseUrl();
+  try {
+    const response = await fetch(`${baseUrl}/booking/schedule/blocked-dates`, {
+      headers: { ...getAuthHeader() },
+    });
+
+    if (!response.ok) return [];
+
+    const rawData = await response.json();
+    const data = extractResult(rawData);
+
+    // Normalize: if backend uses startDate, map it to date for the UI
+    return (Array.isArray(data) ? data : []).map((item: any) => ({
+      ...item,
+      date: item.date || item.startDate,
+    }));
+  } catch (error) {
+    console.error("Error fetching blocked dates:", error);
+    return [];
+  }
+}
+
+/**
+ * Create a blocked date
+ */
+export async function createBlockedDate(dateData: {
+  date: string;
+  reason?: string;
+}): Promise<boolean> {
+  const baseUrl = getBaseUrl();
+  try {
+    // Backend requires startDate and endDate instead of 'date'
+    const payload = {
+      startDate: dateData.date,
+      endDate: dateData.date,
+      reason: dateData.reason || "Blocked",
+    };
+
+    const response = await fetch(`${baseUrl}/booking/schedule/blocked-dates`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(payload),
+    });
+
+    return response.ok;
+  } catch (error) {
+    console.error("Error creating blocked date:", error);
+    return false;
+  }
+}
+
+/**
+ * Delete a blocked date
+ */
+export async function deleteBlockedDate(id: string): Promise<boolean> {
+  const baseUrl = getBaseUrl();
+  try {
+    const response = await fetch(
+      `${baseUrl}/booking/schedule/blocked-dates/${id}`,
+      {
+        method: "DELETE",
+        headers: { ...getAuthHeader() },
+      },
+    );
+
+    return response.ok;
+  } catch (error) {
+    console.error("Error deleting blocked date:", error);
+    return false;
   }
 }

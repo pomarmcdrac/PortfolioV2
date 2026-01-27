@@ -14,6 +14,7 @@ export async function GET(
 ) {
   const { path } = await params;
   const pathStr = path.join("/");
+
   const apiUrl = process.env.API_URL;
   const searchParams = new URL(request.url).searchParams.toString();
 
@@ -36,16 +37,17 @@ export async function POST(
 ) {
   const { path } = await params;
   const pathStr = path.join("/");
+
   const apiUrl = process.env.API_URL;
 
   // Rate Limiting for Contact Form
   if (pathStr === "contact" || pathStr === "mail/send") {
+    // ... existing rate limit logic ...
     const ip = request.headers.get("x-forwarded-for") || "local";
     const now = Date.now();
     const attempts = contactRateLimits.get(ip);
 
     if (attempts) {
-      // Check if window has passed, reset if so
       if (now - attempts.lastAttempt > CONTACT_WINDOW) {
         contactRateLimits.set(ip, { count: 1, lastAttempt: now });
       } else if (attempts.count >= MAX_CONTACT_ATTEMPTS) {
@@ -123,6 +125,29 @@ export async function PUT(
 
   const response = await fetch(`${apiUrl}/${pathStr}`, {
     method: "PUT",
+    headers: {
+      Authorization: request.headers.get("Authorization") || "",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  const data = await response.json();
+  return NextResponse.json(data, { status: response.status });
+}
+
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ path: string[] }> },
+) {
+  const { path } = await params;
+  const pathStr = path.join("/");
+  const apiUrl = process.env.API_URL;
+
+  const body = await request.json();
+
+  const response = await fetch(`${apiUrl}/${pathStr}`, {
+    method: "PATCH",
     headers: {
       Authorization: request.headers.get("Authorization") || "",
       "Content-Type": "application/json",

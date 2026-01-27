@@ -11,6 +11,7 @@ import {
   Menu,
   X,
   FileText,
+  Calendar,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -33,6 +34,7 @@ export default function AdminLayout({
     { name: "Experiencia", path: "/admin/experience", icon: Briefcase },
     { name: "Habilidades", path: "/admin/skills", icon: Code },
     { name: "Blog", path: "/admin/blog", icon: FileText },
+    { name: "Horarios", path: "/admin/schedule", icon: Calendar },
     { name: "Sobre Mí", path: "/admin/about", icon: User },
   ];
 

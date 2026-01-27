@@ -35,6 +35,7 @@ export default function AdminBlog() {
     tags: "",
     content: "",
     contentEs: "",
+    imageUrl: "",
   });
 
   useEffect(() => {
@@ -78,6 +79,7 @@ export default function AdminBlog() {
       tags: Array.isArray(blog.tags) ? blog.tags.join(", ") : blog.tags || "",
       content: blog.content,
       contentEs: blog.contentEs || blog.content,
+      imageUrl: blog.imageUrl || "",
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -94,6 +96,7 @@ export default function AdminBlog() {
       tags: "",
       content: "",
       contentEs: "",
+      imageUrl: "",
     });
   };
 
@@ -124,9 +127,24 @@ export default function AdminBlog() {
     if (success) {
       resetForm();
       loadBlogs();
-      alert(editingId ? "Post actualizado" : "Post publicado");
+      // alert(editingId ? "Post actualizado" : "Post publicado");
     } else {
       alert("Error al guardar el post");
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const { uploadImage } = await import("@/lib/api");
+      const url = await uploadImage(file);
+      if (url) {
+        setFormData((prev) => ({ ...prev, imageUrl: url }));
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
     }
   };
 
@@ -246,6 +264,51 @@ export default function AdminBlog() {
                 required
                 style={baseInputStyle}
               />
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr auto",
+                gap: "1rem",
+                alignItems: "end",
+              }}
+            >
+              <input
+                placeholder="URL de la imagen (Cabecera)"
+                value={formData.imageUrl}
+                onChange={(e) =>
+                  setFormData({ ...formData, imageUrl: e.target.value })
+                }
+                style={baseInputStyle}
+              />
+              <div style={{ position: "relative" }}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  style={{
+                    position: "absolute",
+                    opacity: 0,
+                    width: "100%",
+                    height: "100%",
+                    cursor: "pointer",
+                  }}
+                />
+                <button
+                  type="button"
+                  style={{
+                    ...baseInputStyle,
+                    width: "auto",
+                    background: "rgba(255,255,255,0.1)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                  }}
+                >
+                  <Plus size={18} /> Subir
+                </button>
+              </div>
             </div>
 
             <input
@@ -368,6 +431,27 @@ export default function AdminBlog() {
                   position: "relative",
                 }}
               >
+                {blog.imageUrl && (
+                  <div
+                    style={{
+                      height: "120px",
+                      width: "100%",
+                      borderRadius: "8px",
+                      overflow: "hidden",
+                      marginBottom: "1rem",
+                    }}
+                  >
+                    <img
+                      src={blog.imageUrl}
+                      alt={blog.title}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  </div>
+                )}
                 <div
                   style={{
                     display: "flex",

@@ -18,7 +18,7 @@ import {
   Info,
   Phone,
 } from "lucide-react";
-import { getAvailableSlots, createBooking } from "@/lib/api";
+import { getAvailableSlots, createBooking, getScheduleConfig } from "@/lib/api";
 import { useLanguage } from "@/context/LanguageContext";
 import Link from "next/link";
 
@@ -85,16 +85,50 @@ export default function BookingPage() {
       glow: "rgba(34, 197, 94, 0.4)",
     },
     {
-      id: "coffee",
-      name: t.booking.topics.coffee,
+      id: "consultation",
+      name: t.booking.topics.consultation,
       duration: "15 min",
-      icon: "☕",
-      description: t.booking.topics.coffeeDesc,
+      icon: "💡",
+      description: t.booking.topics.consultationDesc,
       glow: "rgba(234, 179, 8, 0.4)",
     },
   ];
 
-  const today = new Date().toISOString().split("T")[0];
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  const today = `${year}-${month}-${day}`;
+
+  useEffect(() => {
+    // Always start from step 1 when entering the booking page
+    // Only restore form data for user convenience
+    const saved = localStorage.getItem("mcdrac_booking_state");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Only restore form data (name, email, phone, message)
+        if (parsed.form) setForm(parsed.form);
+      } catch (e) {
+        console.error("Error parsing booking state", e);
+      }
+    }
+    // Clear any previous booking state to ensure fresh start
+    localStorage.removeItem("mcdrac_booking_state");
+  }, []);
+
+  useEffect(() => {
+    // Save state, but maybe exclude sensitive data if needed?
+    // For now saving everything to restore fully.
+    const state = {
+      step,
+      selectedTopic,
+      selectedDate,
+      selectedTime,
+      form,
+    };
+    localStorage.setItem("mcdrac_booking_state", JSON.stringify(state));
+  }, [step, selectedTopic, selectedDate, selectedTime, form]);
 
   useEffect(() => {
     if (selectedDate) {
@@ -105,7 +139,58 @@ export default function BookingPage() {
   async function fetchSlots() {
     setLoadingSlots(true);
     try {
-      const slots = await getAvailableSlots(selectedDate);
+      // Parallel fetch: slots from backend (which might be raw) + config
+      const [slotsData, configData] = await Promise.all([
+        getAvailableSlots(selectedDate),
+        getScheduleConfig(),
+      ]);
+
+      let slots = slotsData || [];
+
+      // 1. Filter past slots for "Today"
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
+      const todayStr = `${year}-${month}-${day}`;
+
+      if (selectedDate === todayStr) {
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
+        slots = slots.filter((slot) => {
+          const [h, m] = slot.split(":").map(Number);
+          return h * 60 + m > currentMinutes;
+        });
+      }
+
+      // 2. Filter Break Times if config exists
+      if (configData && configData.breaks && configData.breaks.length > 0) {
+        slots = slots.filter((slot) => {
+          const [slotH, slotM] = slot.split(":").map(Number);
+          const slotMinutes = slotH * 60 + slotM;
+
+          // Check if this slot falls INSIDE any break
+          const inBreak = configData.breaks.some((brk: any) => {
+            const [startH, startM] = brk.start.split(":").map(Number);
+            const [endH, endM] = brk.end.split(":").map(Number);
+            const startMin = startH * 60 + startM;
+            const endMin = endH * 60 + endM;
+
+            return slotMinutes >= startMin && slotMinutes < endMin;
+          });
+
+          return !inBreak;
+        });
+      }
+
+      // 3. Filter Blocked Dates (Double check)
+      if (
+        configData &&
+        configData.blockedDates &&
+        configData.blockedDates.includes(selectedDate)
+      ) {
+        slots = [];
+      }
+
       setAvailableSlots(slots);
     } catch (error) {
       setAvailableSlots([]);
@@ -595,7 +680,13 @@ export default function BookingPage() {
                 <p>{t.booking.success.message}</p>
 
                 <div className="action-buttons centered">
-                  <Link href="/" className="btn-primary main-cta">
+                  <Link
+                    href="/"
+                    className="btn-primary main-cta"
+                    onClick={() =>
+                      localStorage.removeItem("mcdrac_booking_state")
+                    } // Clear state on exit
+                  >
                     {t.booking.success.back}
                   </Link>
                 </div>
@@ -635,7 +726,13 @@ export default function BookingPage() {
                   <button onClick={() => setStep(4)} className="btn-secondary">
                     {t.booking.error.back}
                   </button>
-                  <Link href="/" className="btn-primary">
+                  <Link
+                    href="/"
+                    className="btn-primary"
+                    onClick={() =>
+                      localStorage.removeItem("mcdrac_booking_state")
+                    }
+                  >
                     {t.booking.error.home}
                   </Link>
                 </div>

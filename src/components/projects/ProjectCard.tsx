@@ -1,12 +1,21 @@
 import styles from "./ProjectCard.module.css";
 import { Project } from "@/data/projects";
 import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface ProjectCardProps {
   project: Project;
 }
 
 export default function ProjectCard({ project }: ProjectCardProps) {
+  const { t } = useLanguage();
+
+  const isPrivate = (url?: string) =>
+    !url || url.toLowerCase() === "privado" || url.toLowerCase() === "null";
+
+  const hasRepo = !isPrivate(project.repoUrl);
+  const hasLive = !isPrivate(project.liveUrl);
+
   return (
     <div
       className={styles.card}
@@ -44,7 +53,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         </div>
 
         <div className={styles.links} style={{ pointerEvents: "auto" }}>
-          {project.repoUrl && (
+          {hasRepo ? (
             <a
               href={project.repoUrl}
               target="_blank"
@@ -52,10 +61,21 @@ export default function ProjectCard({ project }: ProjectCardProps) {
               className={styles.link}
               style={{ position: "relative", zIndex: 10 }}
             >
-              GitHub &rarr;
+              {t.sections.viewRepo} &rarr;
             </a>
+          ) : (
+            <span
+              style={{
+                fontSize: "0.85rem",
+                color: "rgba(255,255,255,0.4)",
+                padding: "0.5rem 0",
+              }}
+            >
+              {t.sections.viewRepo} {t.sections.privateLink}
+            </span>
           )}
-          {project.liveUrl && (
+
+          {hasLive ? (
             <a
               href={project.liveUrl}
               target="_blank"
@@ -63,15 +83,27 @@ export default function ProjectCard({ project }: ProjectCardProps) {
               className={styles.link}
               style={{ position: "relative", zIndex: 10 }}
             >
-              Ver Demo &rarr;
+              {t.sections.viewDemo} &rarr;
             </a>
+          ) : (
+            <span
+              style={{
+                fontSize: "0.85rem",
+                color: "rgba(255,255,255,0.4)",
+                padding: "0.5rem 0",
+              }}
+            >
+              {t.sections.viewDemo} {t.sections.privateLink}
+            </span>
           )}
-          {!project.repoUrl && !project.liveUrl && project.isConfidential && (
+
+          {!hasRepo && !hasLive && project.isConfidential && (
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
                 gap: "0.5rem",
+                marginTop: "0.5rem",
                 padding: "0.5rem 0.75rem",
                 fontSize: "0.85rem",
                 color: "rgba(255,255,255,0.6)",
@@ -80,7 +112,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                 border: "1px solid rgba(255,255,255,0.1)",
               }}
             >
-              🔒 Proyecto bajo NDA
+              🔒 {t.sections.ndaProject}
             </div>
           )}
         </div>

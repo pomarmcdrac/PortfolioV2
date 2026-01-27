@@ -5,6 +5,7 @@ import { ArrowLeft, Github, ExternalLink, Calendar, Hash } from "lucide-react";
 import { getProjectById } from "@/lib/api";
 import styles from "./page.module.css";
 import { cookies } from "next/headers";
+import { translations } from "@/i18n/translations";
 
 export default async function ProjectPage({
   params,
@@ -13,10 +14,13 @@ export default async function ProjectPage({
 }) {
   const { id } = await params;
   const cookieStore = await cookies();
-  const lang = cookieStore.get("language")?.value || "es";
+  const langKey = (cookieStore.get("language")?.value || "es").toUpperCase() as
+    | "ES"
+    | "EN";
+  const t = translations[langKey];
 
   // Intentar obtener de la API
-  let project = await getProjectById(id, lang);
+  let project = await getProjectById(id, langKey.toLowerCase());
 
   // Fallback a datos estáticos si no se encuentra en la API
   if (!project) {
@@ -37,16 +41,24 @@ export default async function ProjectPage({
         }}
       >
         <h1 style={{ fontSize: "2rem", marginBottom: "1rem" }}>
-          Proyecto no encontrado 😢
+          {t.sections.notFound} 😢
         </h1>
         <Link href="/#projects" className={styles.hoverBackBtn}>
-          <ArrowLeft size={18} /> <span>Volver al portafolio</span>
+          <ArrowLeft size={18} /> <span>{t.sections.backToPortfolio}</span>
         </Link>
       </div>
     );
   }
 
-  const hasLinks = project.repoUrl || project.liveUrl;
+  const isPrivate = (url?: string) =>
+    !url || url.toLowerCase() === "privado" || url.toLowerCase() === "null";
+
+  const hasRepo = !isPrivate(project.repoUrl);
+  const hasLive = !isPrivate(project.liveUrl);
+  const hasLinks = hasRepo || hasLive;
+
+  // Prioritize longDescription, fallback to description
+  const content = project.longDescription || project.description;
 
   return (
     <main
@@ -63,7 +75,7 @@ export default async function ProjectPage({
       {/* Navigation */}
       <nav>
         <Link href="/#projects" className={styles.hoverBackBtn}>
-          <ArrowLeft size={18} /> <span>Volver a Proyectos</span>
+          <ArrowLeft size={18} /> <span>{t.sections.backToProjects}</span>
         </Link>
       </nav>
 
@@ -110,8 +122,7 @@ export default async function ProjectPage({
         </h1>
       </section>
 
-      {/* Project Image (Conditional) */}
-      {/* Project Gallery (Horizontal Scroll) */}
+      {/* Project Image */}
       {project.imageUrl && (
         <div
           style={{
@@ -124,13 +135,12 @@ export default async function ProjectPage({
           }}
           className={styles.galleryContainer}
         >
-          {/* Si en el futuro hay más imágenes, mapear aquí. Por ahora, mostramos la principal y (simulamos) otra si existiera */}
           {[project.imageUrl].map((img, index) => (
             <div
               key={index}
               style={{
-                minWidth: "85%", // En móvil se ve casi completa
-                maxWidth: "800px", // En desktop tiene límite
+                minWidth: "85%",
+                maxWidth: "800px",
                 aspectRatio: "16/9",
                 position: "relative",
                 borderRadius: "24px",
@@ -163,7 +173,7 @@ export default async function ProjectPage({
               color: "white",
             }}
           >
-            Sobre el proyecto
+            {t.sections.aboutProject}
           </h3>
           <p
             style={{
@@ -173,7 +183,7 @@ export default async function ProjectPage({
               whiteSpace: "pre-line",
             }}
           >
-            {project.longDescription}
+            {content}
           </p>
         </div>
 
@@ -204,7 +214,7 @@ export default async function ProjectPage({
                 fontWeight: "600",
               }}
             >
-              Tecnologías
+              {t.sections.technologies}
             </h4>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem" }}>
               {project.techStack.map((tech) => (
@@ -224,7 +234,7 @@ export default async function ProjectPage({
             </div>
           </div>
 
-          {/* Links Actions (Only visible if links exist) */}
+          {/* Links Actions */}
           {hasLinks && (
             <div
               style={{
@@ -233,7 +243,7 @@ export default async function ProjectPage({
                 gap: "1rem",
               }}
             >
-              {project.liveUrl && (
+              {hasLive && (
                 <a
                   href={project.liveUrl}
                   target="_blank"
@@ -253,10 +263,10 @@ export default async function ProjectPage({
                   }}
                 >
                   <ExternalLink size={20} />
-                  Ver Demo
+                  {t.sections.viewDemo}
                 </a>
               )}
-              {project.repoUrl && (
+              {hasRepo && (
                 <a
                   href={project.repoUrl}
                   target="_blank"
@@ -277,7 +287,7 @@ export default async function ProjectPage({
                   }}
                 >
                   <Github size={20} />
-                  Ver Código
+                  {t.sections.viewCode}
                 </a>
               )}
             </div>
@@ -306,7 +316,7 @@ export default async function ProjectPage({
                   gap: "0.5rem",
                 }}
               >
-                🔒 Proyecto Confidencial
+                🔒 {t.sections.ndaProject}
               </h4>
               <p
                 style={{
@@ -315,9 +325,9 @@ export default async function ProjectPage({
                   color: "rgba(255,255,255,0.7)",
                 }}
               >
-                Este proyecto fue desarrollado bajo un acuerdo de
-                confidencialidad (NDA). Por razones de privacidad del cliente,
-                no puedo compartir enlaces públicos ni código fuente.
+                {langKey === "ES"
+                  ? "Este proyecto fue desarrollado bajo un acuerdo de confidencialidad (NDA). Por razones de privacidad del cliente, no puedo compartir enlaces públicos ni código fuente."
+                  : "This project was developed under a non-disclosure agreement (NDA). For client privacy reasons, I cannot share public links or source code."}
               </p>
             </div>
           )}

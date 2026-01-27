@@ -8,6 +8,7 @@ import React, {
   useEffect,
 } from "react";
 import { translations, Language } from "@/i18n/translations";
+import { useRouter } from "next/navigation";
 
 interface LanguageContextType {
   language: Language;
@@ -21,6 +22,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>("ES");
+  const router = useRouter();
 
   // Al cargar, leer de localStorage o cookies
   useEffect(() => {
@@ -28,13 +30,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       (localStorage.getItem("language") as Language) ||
       (getCookie("language") as Language) ||
       "ES";
-    setLanguageState(savedLang);
+    setLanguageState(savedLang.toUpperCase() as Language);
   }, []);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
     localStorage.setItem("language", lang);
     document.cookie = `language=${lang.toLowerCase()}; path=/; max-age=31536000; SameSite=Lax`;
+    router.refresh(); // Crucial: Informar a Next.js que recargue los Server Components
   };
 
   return (

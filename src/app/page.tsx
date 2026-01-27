@@ -393,8 +393,8 @@ export default function Home() {
                           </h3>
                           <p style={{ color: "rgba(255,255,255,0.5)" }}>
                             {isApiOffline
-                              ? "Sincronizando con el servidor de respaldo..."
-                              : "Nuevas soluciones tecnológicas en proceso de creación."}
+                              ? t.sections.syncingBackup
+                              : t.sections.newSolutions}
                           </p>
                         </div>
                       </motion.div>

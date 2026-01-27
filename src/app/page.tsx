@@ -102,8 +102,8 @@ export default function Home() {
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/logo.jpg"
-              alt="McDrac Logo"
+              src={aboutData?.avatar || "/logo.jpg"}
+              alt={aboutData?.name || "McDrac Logo"}
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
             />
           </div>
@@ -114,23 +114,11 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
         >
-          <span
-            style={{
-              color: "var(--color-secondary)",
-              fontWeight: "700",
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              display: "block",
-              marginBottom: "1rem",
-            }}
-          >
-            {aboutData?.bio || t.hero.subtitle}
-          </span>
           <h1
             style={{
               fontSize: "clamp(2.5rem, 5vw, 4.5rem)",
               lineHeight: 1.1,
-              marginBottom: "1.5rem",
+              marginBottom: "0.5rem",
               background:
                 "linear-gradient(to right, #fff, var(--color-primary))",
               WebkitBackgroundClip: "text",
@@ -140,11 +128,25 @@ export default function Home() {
           >
             {aboutData?.title || t.hero.title}
           </h1>
+          <span
+            style={{
+              color: "var(--color-secondary)",
+              fontWeight: "700",
+              fontSize: "1.2rem",
+              letterSpacing: "0.05em",
+              textTransform: "uppercase",
+              display: "block",
+              marginBottom: "1.5rem",
+              opacity: 0.9,
+            }}
+          >
+            {aboutData?.bio || t.hero.subtitle}
+          </span>
           <p
             style={{
-              maxWidth: "650px",
+              maxWidth: "750px",
               margin: "0 auto",
-              fontSize: "1.25rem",
+              fontSize: "1.15rem",
               color: "rgba(255,255,255,0.7)",
               lineHeight: 1.8,
               whiteSpace: "pre-line",

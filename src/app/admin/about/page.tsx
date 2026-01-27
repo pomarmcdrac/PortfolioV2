@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 export default function AdminAbout() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [aboutId, setAboutId] = useState<string>("");
   const router = useRouter();
 
   const {
@@ -33,6 +34,7 @@ export default function AdminAbout() {
     try {
       const data = await getAbout();
       if (data) {
+        setAboutId(data.id || data._id); // Handle both id and _id
         setValue("name", data.name);
         setValue("email", data.email);
         setValue("title", data.title);
@@ -55,8 +57,12 @@ export default function AdminAbout() {
   }
 
   const onSubmit = async (data: any) => {
+    if (!aboutId) {
+      alert("No se encontró el ID de la información");
+      return;
+    }
     setSaving(true);
-    const success = await updateAbout(data);
+    const success = await updateAbout(aboutId, data);
     if (success) {
       alert("Información actualizada correctamente");
     } else {

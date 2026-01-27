@@ -263,11 +263,14 @@ export async function getAbout(lang?: string): Promise<any> {
 /**
  * Update about information
  */
-export async function updateAbout(aboutData: any): Promise<boolean> {
+export async function updateAbout(
+  id: string,
+  aboutData: any,
+): Promise<boolean> {
   const baseUrl = getBaseUrl();
   try {
-    const response = await fetch(`${baseUrl}/about`, {
-      method: "POST", // Using POST for about update as it acts like Upsert
+    const response = await fetch(`${baseUrl}/about/${id}`, {
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         ...getAuthHeader(),

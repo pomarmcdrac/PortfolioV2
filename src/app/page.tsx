@@ -102,7 +102,7 @@ export default function Home() {
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={aboutData?.avatar || "/logo.jpg"}
+              src={"/logo.jpg"}
               alt={aboutData?.name || "McDrac Logo"}
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
             />

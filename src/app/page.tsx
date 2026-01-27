@@ -124,7 +124,7 @@ export default function Home() {
               marginBottom: "1rem",
             }}
           >
-            {aboutData?.subtitle || t.hero.subtitle}
+            {aboutData?.bio || t.hero.subtitle}
           </span>
           <h1
             style={{
@@ -150,8 +150,8 @@ export default function Home() {
               whiteSpace: "pre-line",
             }}
           >
-            {aboutData?.description ? (
-              aboutData.description
+            {aboutData?.longBio ? (
+              aboutData.longBio
             ) : (
               <>
                 {t.hero.description}{" "}

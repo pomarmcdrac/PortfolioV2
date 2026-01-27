@@ -33,12 +33,19 @@ export default function AdminAbout() {
     try {
       const data = await getAbout();
       if (data) {
+        setValue("name", data.name);
+        setValue("email", data.email);
         setValue("title", data.title);
         setValue("titleEs", data.titleEs);
-        setValue("subtitle", data.subtitle);
-        setValue("subtitleEs", data.subtitleEs);
-        setValue("description", data.description);
-        setValue("descriptionEs", data.descriptionEs);
+        setValue("bio", data.bio);
+        setValue("bioEs", data.bioEs);
+        setValue("longBio", data.longBio);
+        setValue("longBioEs", data.longBioEs);
+        setValue("phone", data.phone);
+        setValue("location", data.location);
+        setValue("resumeUrl", data.resumeUrl);
+        setValue("avatar", data.avatar);
+        setValue("availableForWork", data.availableForWork);
       }
     } catch (error) {
       console.error(error);
@@ -111,24 +118,53 @@ export default function AdminAbout() {
           >
             <div>
               <label style={{ display: "block", marginBottom: "0.5rem" }}>
-                Subtítulo (EN)
+                Nombre Completo
               </label>
               <input
-                {...register("subtitle")}
+                {...register("name", { required: true })}
                 style={inputStyle}
-                placeholder="Ej. FULL STACK DEVELOPER"
-                maxLength={100}
+                placeholder="Ej. Omar Morales"
               />
             </div>
             <div>
               <label style={{ display: "block", marginBottom: "0.5rem" }}>
-                Subtítulo (ES)
+                Email de Contacto
               </label>
               <input
-                {...register("subtitleEs")}
+                {...register("email", { required: true })}
                 style={inputStyle}
-                placeholder="Ej. DESARROLLADOR FULL STACK"
-                maxLength={100}
+                placeholder="Ej. omar@example.com"
+              />
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "1rem",
+            }}
+          >
+            <div>
+              <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                Biografía Corta (EN)
+              </label>
+              <input
+                {...register("bio", { required: true })}
+                style={inputStyle}
+                placeholder="Ej. Passioned full stack developer..."
+                maxLength={150}
+              />
+            </div>
+            <div>
+              <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                Biografía Corta (ES)
+              </label>
+              <input
+                {...register("bioEs", { required: true })}
+                style={inputStyle}
+                placeholder="Ej. Desarrollador full stack apasionado..."
+                maxLength={150}
               />
             </div>
           </div>
@@ -181,35 +217,90 @@ export default function AdminAbout() {
           >
             <div>
               <label style={{ display: "block", marginBottom: "0.5rem" }}>
-                Biografía (EN)
+                Biografía Larga (EN)
               </label>
               <textarea
-                {...register("description", { required: true })}
+                {...register("longBio", { required: true })}
                 style={{
                   ...inputStyle,
                   minHeight: "200px",
                   resize: "vertical",
                   lineHeight: "1.6",
                 }}
-                placeholder="Write your biography in English..."
-                maxLength={5000}
+                placeholder="Write your long biography in English..."
               />
             </div>
             <div>
               <label style={{ display: "block", marginBottom: "0.5rem" }}>
-                Biografía (ES)
+                Biografía Larga (ES)
               </label>
               <textarea
-                {...register("descriptionEs", { required: true })}
+                {...register("longBioEs", { required: true })}
                 style={{
                   ...inputStyle,
                   minHeight: "200px",
                   resize: "vertical",
                   lineHeight: "1.6",
                 }}
-                placeholder="Escribe tu biografía en español..."
-                maxLength={5000}
+                placeholder="Escribe tu biografía larga en español..."
               />
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr 1fr",
+              gap: "1rem",
+            }}
+          >
+            <div>
+              <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                Teléfono
+              </label>
+              <input {...register("phone")} style={inputStyle} />
+            </div>
+            <div>
+              <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                Ubicación
+              </label>
+              <input {...register("location")} style={inputStyle} />
+            </div>
+            <div>
+              <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                URL CV
+              </label>
+              <input {...register("resumeUrl")} style={inputStyle} />
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "1rem",
+            }}
+          >
+            <div>
+              <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                URL Avatar
+              </label>
+              <input {...register("avatar")} style={inputStyle} />
+            </div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                marginTop: "1.5rem",
+              }}
+            >
+              <input
+                type="checkbox"
+                {...register("availableForWork")}
+                id="availableForWork"
+              />
+              <label htmlFor="availableForWork">Disponible para trabajar</label>
             </div>
           </div>
 

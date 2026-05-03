@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   description:
     "Portafolio de desarrollador Full Stack especializado en Flutter y Next.js",
   icons: {
-    icon: "/logo.jpg",
+    icon: "/logo.png",
   },
 };
 

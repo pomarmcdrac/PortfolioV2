@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/vidrios_morales/:path*",
+      "destination": "https://vidrios-morales.vercel.app/:path*"
+    }
+  ]
+}

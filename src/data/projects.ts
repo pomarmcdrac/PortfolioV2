@@ -1,4 +1,4 @@
-export type ProjectCategory = "Mobile" | "Frontend" | "Backend" | "Full Stack";
+export type ProjectCategory = "Mobile" | "Frontend" | "Backend" | "Full Stack" | "IoT & Domótica";
 
 export interface Project {
   id: string;
@@ -45,7 +45,7 @@ export const projects: Project[] = [
       "Sistema integral de control para Hogares Inteligentes (Software + Hardware).",
     longDescription:
       "Desarrollo e implementación de soluciones IoT para domótica. El proyecto abarcó desde la programación de controladores de hardware hasta la interfaz de usuario para el control de dispositivos inteligentes, enfocándose en la interoperabilidad y la facilidad de uso para el usuario final.",
-    category: "Backend",
+    category: "IoT & Domótica",
     techStack: ["IoT", "Hardware Control", "C++", "Mobile"],
     isConfidential: true, // Proyecto bajo NDA
   },

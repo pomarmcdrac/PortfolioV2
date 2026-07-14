@@ -21,6 +21,7 @@ import {
 import { getAvailableSlots, createBooking, getScheduleConfig } from "@/lib/api";
 import { useLanguage } from "@/context/LanguageContext";
 import Link from "next/link";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function BookingPage() {
   const { t, language } = useLanguage();
@@ -38,6 +39,58 @@ export default function BookingPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingResult, setBookingResult] = useState<any>(null);
+  const [supabaseUser, setSupabaseUser] = useState<any>(null);
+  const [supabaseSession, setSupabaseSession] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSupabaseSession(session);
+      setSupabaseUser(session?.user ?? null);
+      if (session?.user) {
+        setForm((prev) => ({
+          ...prev,
+          name: session.user.user_metadata.full_name || session.user.user_metadata.name || "",
+          email: session.user.email || "",
+        }));
+      }
+      setAuthLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSupabaseSession(session);
+      setSupabaseUser(session?.user ?? null);
+      if (session?.user) {
+        setForm((prev) => ({
+          ...prev,
+          name: session.user.user_metadata.full_name || session.user.user_metadata.name || "",
+          email: session.user.email || "",
+        }));
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin + "/booking",
+        },
+      });
+      if (error) throw error;
+    } catch (error) {
+      console.error("Error signing in with Google:", error);
+    }
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setForm({ name: "", email: "", phone: "", message: "" });
+  };
+
   const [formErrors, setFormErrors] = useState({
     email: false,
     phone: false,
@@ -55,6 +108,7 @@ export default function BookingPage() {
   };
 
   const isFormValid =
+    supabaseUser !== null &&
     form.name.trim().length >= 3 &&
     validateEmail(form.email) &&
     validatePhone(form.phone);
@@ -237,18 +291,37 @@ export default function BookingPage() {
       const firstName = nameParts[0];
       const lastName = nameParts.slice(1).join(" ") || ".";
 
-      const payload = {
-        firstName,
-        lastName,
-        email: form.email.trim(),
-        startTime,
-        endTime,
-        description: `Topic: ${selectedTopic.name}. Phone: ${form.phone}. Message: ${form.message}`,
-      };
+      const token = supabaseSession?.access_token;
+      if (!token) {
+        throw new Error("No estás autenticado con Google");
+      }
 
-      const result = await createBooking(payload);
-      if (result) {
-        setBookingResult(result);
+      const response = await fetch("/api/booking/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email: form.email.trim(),
+          startTime,
+          endTime,
+          description: form.message,
+          phone: form.phone,
+          topic: selectedTopic.name,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: "Error al agendar la reunión" }));
+        throw new Error(errorData.error || "Error al agendar la reunión");
+      }
+
+      const result = await response.json();
+      if (result.success) {
+        setBookingResult(result.booking);
         setStep(5);
       } else {
         setStep(6);
@@ -556,82 +629,203 @@ export default function BookingPage() {
                   </div>
                 </div>
 
-                <div className="contact-form">
-                  <div className="form-group">
-                    <label>{t.booking.form.name}</label>
-                    <div
-                      className={`input-with-icon ${
-                        form.name && form.name.trim().length < 3 ? "error" : ""
-                      }`}
+                {!supabaseUser ? (
+                  <div style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "3rem 1.5rem",
+                    textAlign: "center",
+                    gap: "1.5rem"
+                  }}>
+                    <div style={{
+                      width: "60px",
+                      height: "60px",
+                      borderRadius: "50%",
+                      background: "rgba(56, 189, 248, 0.1)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "var(--color-primary)"
+                    }}>
+                      <User size={30} />
+                    </div>
+                    <div>
+                      <h3 style={{ fontSize: "1.2rem", fontWeight: "700", color: "white", marginBottom: "0.5rem" }}>
+                        Verificación de Cuenta Requerida
+                      </h3>
+                      <p style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.6)", maxWidth: "400px", margin: "0 auto", lineHeight: "1.6" }}>
+                        Para garantizar citas legítimas y agendar automáticamente en el calendario, es necesario iniciar sesión con tu cuenta de Google.
+                      </p>
+                    </div>
+                    <button
+                      onClick={handleGoogleSignIn}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.75rem",
+                        padding: "0.8rem 1.5rem",
+                        background: "white",
+                        color: "black",
+                        border: "none",
+                        borderRadius: "99px",
+                        fontWeight: "700",
+                        fontSize: "0.95rem",
+                        cursor: "pointer",
+                        boxShadow: "0 10px 20px -5px rgba(255,255,255,0.2)",
+                        transition: "transform 0.2s"
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.03)"}
+                      onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
                     >
-                      <User size={18} />
-                      <input
-                        type="text"
-                        placeholder={t.booking.form.placeholderName}
-                        value={form.name}
-                        maxLength={60}
-                        onChange={(e) =>
-                          setForm({ ...form, name: e.target.value })
-                        }
-                      />
-                    </div>
+                      <svg width="18" height="18" viewBox="0 0 18 18">
+                        <path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84a4.14 4.14 0 0 1-1.8 2.71v2.26h2.91c1.7-1.56 2.69-3.86 2.69-6.6z"/>
+                        <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.2l-2.91-2.26a5.6 5.6 0 0 1-8.1-2.92H.9v2.33A9 9 0 0 0 9 18z"/>
+                        <path fill="#FBBC05" d="M3.95 10.62A5.4 5.4 0 0 1 3.6 9c0-.56.1-1.11.35-1.62V5.05H.9a9 9 0 0 0 0 7.9l3.05-2.33z"/>
+                        <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.1A9 9 0 0 0 .9 5.05l3.05 2.33A5.4 5.4 0 0 1 9 3.58z"/>
+                      </svg>
+                      Verificar con Google
+                    </button>
                   </div>
+                ) : (
+                  <>
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "1rem",
+                      background: "rgba(255,255,255,0.03)",
+                      borderRadius: "12px",
+                      border: "1px solid rgba(255,255,255,0.05)",
+                      marginBottom: "1.5rem"
+                    }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                        {supabaseUser.user_metadata.avatar_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={supabaseUser.user_metadata.avatar_url}
+                            alt="Avatar"
+                            style={{ width: "32px", height: "32px", borderRadius: "50%" }}
+                          />
+                        ) : (
+                          <div style={{
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "50%",
+                            background: "var(--color-primary)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "black",
+                            fontWeight: "bold",
+                            fontSize: "0.8rem"
+                          }}>
+                            {supabaseUser.email?.slice(0, 2).toUpperCase()}
+                          </div>
+                        )}
+                        <div style={{ textAlign: "left" }}>
+                          <p style={{ fontWeight: "600", fontSize: "0.9rem", color: "white", margin: 0, lineHeight: 1.2 }}>
+                            {supabaseUser.user_metadata.full_name || supabaseUser.user_metadata.name || "Usuario verificado"}
+                          </p>
+                          <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.5)", margin: 0, lineHeight: 1.2 }}>
+                            {supabaseUser.email}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleSignOut}
+                        style={{
+                          background: "rgba(255,0,0,0.1)",
+                          border: "none",
+                          color: "#ff6b6b",
+                          padding: "0.4rem 0.8rem",
+                          borderRadius: "8px",
+                          fontSize: "0.8rem",
+                          cursor: "pointer",
+                          transition: "background 0.2s"
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,0,0,0.2)"}
+                        onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,0,0,0.1)"}
+                      >
+                        Cambiar Cuenta
+                      </button>
+                    </div>
 
-                  <div className="form-group">
-                    <label>{t.booking.form.email}</label>
-                    <div
-                      className={`input-with-icon ${
-                        form.email && !validateEmail(form.email) ? "error" : ""
-                      }`}
-                    >
-                      <span className="at-icon">@</span>
-                      <input
-                        type="email"
-                        placeholder={t.booking.form.placeholderEmail}
-                        value={form.email}
-                        maxLength={100}
-                        onChange={(e) =>
-                          setForm({ ...form, email: e.target.value })
-                        }
-                      />
-                    </div>
-                  </div>
+                    <div className="contact-form">
+                      <div className="form-group">
+                        <label>{t.booking.form.name}</label>
+                        <div
+                          className={`input-with-icon disabled-input`}
+                          style={{ opacity: 0.8 }}
+                        >
+                          <User size={18} />
+                          <input
+                            type="text"
+                            placeholder={t.booking.form.placeholderName}
+                            value={form.name}
+                            maxLength={60}
+                            disabled
+                            readOnly
+                          />
+                        </div>
+                      </div>
 
-                  <div className="form-group">
-                    <label>{t.booking.form.phone}</label>
-                    <div
-                      className={`input-with-icon ${
-                        form.phone && !validatePhone(form.phone) ? "error" : ""
-                      }`}
-                    >
-                      <Phone size={18} />
-                      <input
-                        type="tel"
-                        placeholder={t.booking.form.placeholderPhone}
-                        value={form.phone}
-                        maxLength={20}
-                        onChange={(e) =>
-                          setForm({ ...form, phone: e.target.value })
-                        }
-                      />
-                    </div>
-                  </div>
+                      <div className="form-group">
+                        <label>{t.booking.form.email}</label>
+                        <div
+                          className={`input-with-icon disabled-input`}
+                          style={{ opacity: 0.8 }}
+                        >
+                          <span className="at-icon">@</span>
+                          <input
+                            type="email"
+                            placeholder={t.booking.form.placeholderEmail}
+                            value={form.email}
+                            maxLength={100}
+                            disabled
+                            readOnly
+                          />
+                        </div>
+                      </div>
 
-                  <div className="form-group">
-                    <label>{t.booking.form.message}</label>
-                    <div className="input-with-icon align-top">
-                      <MessageSquare size={18} />
-                      <textarea
-                        placeholder={t.booking.form.placeholderMessage}
-                        value={form.message}
-                        maxLength={500}
-                        onChange={(e) =>
-                          setForm({ ...form, message: e.target.value })
-                        }
-                      />
+                      <div className="form-group">
+                        <label>{t.booking.form.phone}</label>
+                        <div
+                          className={`input-with-icon ${
+                            form.phone && !validatePhone(form.phone) ? "error" : ""
+                          }`}
+                        >
+                          <Phone size={18} />
+                          <input
+                            type="tel"
+                            placeholder={t.booking.form.placeholderPhone}
+                            value={form.phone}
+                            maxLength={20}
+                            onChange={(e) =>
+                              setForm({ ...form, phone: e.target.value })
+                            }
+                          />
+                        </div>
+                      </div>
+
+                      <div className="form-group">
+                        <label>{t.booking.form.message}</label>
+                        <div className="input-with-icon align-top">
+                          <MessageSquare size={18} />
+                          <textarea
+                            placeholder={t.booking.form.placeholderMessage}
+                            value={form.message}
+                            maxLength={500}
+                            onChange={(e) =>
+                              setForm({ ...form, message: e.target.value })
+                            }
+                          />
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
+                  </>
+                )}
 
                 <div className="action-buttons">
                   <button onClick={() => setStep(3)} className="btn-secondary">

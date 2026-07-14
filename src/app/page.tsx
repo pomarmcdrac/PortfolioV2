@@ -13,7 +13,14 @@ import ExperienceTimeline from "@/components/sections/ExperienceTimeline";
 import Services from "@/components/sections/Services";
 import ContactCTA from "@/components/sections/ContactCTA";
 import { motion, AnimatePresence } from "framer-motion";
-import { Rocket, CalendarCheck } from "lucide-react";
+import {
+  Rocket,
+  CalendarCheck,
+  Globe,
+  Smartphone,
+  Cpu,
+  ShieldCheck,
+} from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useEffect } from "react";
 
@@ -29,18 +36,34 @@ export default function Home() {
     async function loadData() {
       setLoading(true);
       try {
-        const [projectsData, aboutInfo] = await Promise.all([
+        const [projectsRes, aboutRes] = await Promise.allSettled([
           getProjects(language),
           getAbout(language),
         ]);
 
-        // Si la API responde (incluso si está vacía), confiamos en ella
-        setProjectsList(projectsData);
-        setAboutData(aboutInfo);
-        setIsApiOffline(false);
+        if (projectsRes.status === "fulfilled") {
+          setProjectsList(projectsRes.value);
+          setIsApiOffline(false);
+        } else {
+          console.warn(
+            "API Projects Error: Usando datos estáticos como respaldo.",
+            projectsRes.reason,
+          );
+          setProjectsList(staticProjects);
+          setIsApiOffline(true);
+        }
+
+        if (aboutRes.status === "fulfilled") {
+          setAboutData(aboutRes.value);
+        } else {
+          console.warn(
+            "API About Error: Usando datos locales.",
+            aboutRes.reason,
+          );
+          setAboutData(null);
+        }
       } catch (error) {
-        // Solo si falla la conexión usamos los estáticos como respaldo
-        console.warn("API Offline: Usando datos estáticos como respaldo.");
+        console.error("Critical error in loadData:", error);
         setProjectsList(staticProjects);
         setIsApiOffline(true);
       } finally {
@@ -56,6 +79,7 @@ export default function Home() {
     "Mobile",
     "Frontend",
     "Backend",
+    "IoT & Domótica",
   ];
 
   const filteredProjects = projectsList.filter((project) =>
@@ -94,7 +118,7 @@ export default function Home() {
             style={{
               width: "120px",
               height: "120px",
-              borderRadius: "24px",
+              borderRadius: "4px",
               overflow: "hidden",
               boxShadow: "0 0 40px -10px var(--color-primary-glow)",
               border: "2px solid rgba(56, 189, 248, 0.3)",
@@ -114,11 +138,28 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
         >
+          {/* Eyebrow: Nombre */}
+          <span
+            style={{
+              color: "var(--color-secondary)",
+              fontWeight: "800",
+              fontSize: "1.25rem",
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              display: "block",
+              marginBottom: "0.75rem",
+              opacity: 0.95,
+            }}
+          >
+            {aboutData?.name || t.hero.subtitle}
+          </span>
+
+          {/* H1: Rol / Título */}
           <h1
             style={{
               fontSize: "clamp(2.5rem, 5vw, 4.5rem)",
               lineHeight: 1.1,
-              marginBottom: "0.5rem",
+              marginBottom: "1.2rem",
               background:
                 "linear-gradient(to right, #fff, var(--color-primary))",
               WebkitBackgroundClip: "text",
@@ -128,20 +169,24 @@ export default function Home() {
           >
             {aboutData?.title || t.hero.title}
           </h1>
-          <span
-            style={{
-              color: "var(--color-secondary)",
-              fontWeight: "700",
-              fontSize: "1.2rem",
-              letterSpacing: "0.05em",
-              textTransform: "uppercase",
-              display: "block",
-              marginBottom: "1.5rem",
-              opacity: 0.9,
-            }}
-          >
-            {aboutData?.bio || t.hero.subtitle}
-          </span>
+
+          {/* Propuesta de valor o Bio corta */}
+          {aboutData?.bio && (
+            <p
+              style={{
+                color: "rgba(255, 255, 255, 0.95)",
+                fontWeight: "600",
+                fontSize: "clamp(1.1rem, 2vw, 1.35rem)",
+                maxWidth: "800px",
+                margin: "0 auto 1.5rem auto",
+                lineHeight: 1.5,
+              }}
+            >
+              {aboutData.bio}
+            </p>
+          )}
+
+          {/* Descripción larga o fallback */}
           <p
             style={{
               maxWidth: "750px",
@@ -319,7 +364,7 @@ export default function Home() {
                         : "none",
                   }}
                 >
-                  {cat === "All" ? t.sections.filterAll : cat}
+                  {t.sections.categories[cat] || cat}
                 </button>
               ))}
             </div>

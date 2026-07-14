@@ -2,13 +2,37 @@ export const translations = {
   ES: {
     hero: {
       subtitle: "Omar Morales Mendoza",
-      title: "Desarrollador Web y Móvil",
+      title: "Ingeniero de Software",
       description:
-        "Ingeniero Mecatrónico y desarrollador autodidacta. Creativo y determinado, especializándome en soluciones innovadoras con tecnologías como",
-      ctaProject: "Ver Portafolio",
+        "Especializado en transformar ideas complejas en productos digitales listos para producción. Experto en arquitecturas robustas y escalables utilizando",
+      ctaProject: "Ver Soluciones",
       ctaBlog: "Leer Blog",
       ctaCV: "Descargar CV",
-      ctaMeet: "Agendar Meet",
+      ctaMeet: "Agendar Cita",
+    },
+    solutions: {
+      title: "Soluciones de Ingeniería",
+      subtitle: "Arquitecturas modernas construidas para resolver problemas de negocio reales",
+      saas: {
+        title: "SaaS & Plataformas Web",
+        desc: "Paneles administrativos premium, automatizaciones y sitios web optimizados con Next.js.",
+        features: ["Paneles de Control Premium", "SaaS Escalables", "Automatización de Procesos", "Optimización de Rendimiento"],
+      },
+      mobile: {
+        title: "Aplicaciones Móviles",
+        desc: "Experiencias fluidas nativas y multiplataforma usando Flutter con arquitecturas limpias.",
+        features: ["Desarrollo Multiplataforma", "UI/UX Fluido y Moderno", "Animaciones Premium", "Publicación en Tiendas"],
+      },
+      iot: {
+        title: "IoT & Domótica",
+        desc: "Automatización de espacios y firmware (ESP32/Arduino) con control en tiempo real.",
+        features: ["Firmware a la Medida (ESP32)", "Protocolos MQTT / WebSockets", "Integración con Home Assistant", "Sensores y Actuadores"],
+      },
+      fintech: {
+        title: "Fintech & Pagos",
+        desc: "Integración segura de pasarelas de pago, APIs transaccionales y cumplimiento de confidencialidad (NDA).",
+        features: ["Pasarelas de Pago (Stripe/PayPal)", "APIs Transaccionales Seguras", "Estándares de Encriptación", "Cumplimiento de NDA"],
+      },
     },
     services: {
       title: "Mis Servicios",
@@ -27,6 +51,11 @@ export const translations = {
         title: "Backend & Integraciones",
         desc: "APIs RESTful, gestión de bases de datos y metodologías ágiles (Scrum/Kanban).",
       },
+      iot: {
+        title: "IoT & Domótica",
+        desc: "Automatización de espacios, firmware para microcontroladores y comunicación en tiempo real (MQTT/WebSockets).",
+        features: ["ESP32 / Arduino", "Integración de Sensores", "Home Assistant / MQTT", "Control en Tiempo Real"]
+      },
     },
     sections: {
       projectsTitle: "Proyectos Destacados",
@@ -37,6 +66,14 @@ export const translations = {
       contactBtn: "Hablemos",
       contactMeet: "O agendar un Meet ahora",
       filterAll: "Todos",
+      categories: {
+        All: "Todos",
+        "Full Stack": "Full Stack",
+        Mobile: "Móvil",
+        Frontend: "Frontend",
+        Backend: "Backend",
+        "IoT & Domótica": "IoT & Domótica"
+      },
       noProjects: "Nuevos proyectos en fase de desarrollo y despliegue.",
       noExperience: "Trayectoria profesional en proceso de actualización.",
       privateLink: "Privado",
@@ -56,6 +93,12 @@ export const translations = {
       home: "Inicio",
       projects: "Proyectos",
       contact: "Contacto",
+    },
+    blog: {
+      title: "Blog Técnico",
+      subtitle: "Compartiendo conocimientos sobre desarrollo web, mobile y arquitectura de software.",
+      backBtn: "Volver al Inicio",
+      backToBlog: "Volver al Blog",
     },
     booking: {
       title: "Agendar una Reunión",
@@ -148,13 +191,37 @@ export const translations = {
   EN: {
     hero: {
       subtitle: "Omar Morales Mendoza",
-      title: "Web & Mobile Developer",
+      title: "Software Engineer",
       description:
-        "Mechatronics Engineer and self-taught developer. Creative and driven, specializing in innovative solutions using technologies like",
-      ctaProject: "View Portfolio",
+        "Specialized in transforming complex ideas into production-ready digital products. Expert in robust and scalable architectures using",
+      ctaProject: "View Solutions",
       ctaBlog: "Read Blog",
       ctaCV: "Download CV",
-      ctaMeet: "Schedule Meet",
+      ctaMeet: "Schedule Meeting",
+    },
+    solutions: {
+      title: "Engineering Solutions",
+      subtitle: "Modern architectures built to solve real-world business challenges",
+      saas: {
+        title: "SaaS & Web Platforms",
+        desc: "Premium admin panels, custom workflows, and high-performance websites built with Next.js.",
+        features: ["Premium Admin Panels", "Scalable SaaS Applications", "Process Automation", "Performance Optimization"],
+      },
+      mobile: {
+        title: "Mobile Applications",
+        desc: "Smooth native-like multiplatform experiences (iOS & Android) using Flutter with Clean Architecture.",
+        features: ["Multiplatform Development", "Fluid & Modern UI/UX", "Premium Animations", "App Store Publishing"],
+      },
+      iot: {
+        title: "IoT & Automation",
+        desc: "Smart space automation and custom firmware (ESP32/Arduino) with real-time controls.",
+        features: ["Custom Firmware (ESP32)", "MQTT / WebSockets Protocols", "Home Assistant Integration", "Sensors & Actuators"],
+      },
+      fintech: {
+        title: "Fintech & Payments",
+        desc: "Secure payment gateway integration, transactional API development, and NDA compliance.",
+        features: ["Payment Gateways (Stripe/PayPal)", "Secure Transactional APIs", "Encryption Standards", "NDA Compliance"],
+      },
     },
     services: {
       title: "My Services",
@@ -173,6 +240,11 @@ export const translations = {
         title: "Backend & Integrations",
         desc: "RESTful APIs, database management, and agile methodologies (Scrum/Kanban).",
       },
+      iot: {
+        title: "IoT & Home Automation",
+        desc: "Smart space automation, firmware for microcontrollers, and real-time communication (MQTT/WebSockets).",
+        features: ["ESP32 / Arduino", "Sensor Integration", "Home Assistant / MQTT", "Real-time Control"]
+      },
     },
     sections: {
       projectsTitle: "Featured Projects",
@@ -183,6 +255,14 @@ export const translations = {
       contactBtn: "Let's Talk",
       contactMeet: "Or schedule a Meet now",
       filterAll: "All",
+      categories: {
+        All: "All",
+        "Full Stack": "Full Stack",
+        Mobile: "Mobile",
+        Frontend: "Frontend",
+        Backend: "Backend",
+        "IoT & Domótica": "IoT & Automation"
+      },
       noProjects: "New projects in development and deployment phase.",
       noExperience: "Professional trajectory currently being updated.",
       privateLink: "Private",
@@ -202,6 +282,12 @@ export const translations = {
       home: "Home",
       projects: "Projects",
       contact: "Contact",
+    },
+    blog: {
+      title: "Technical Blog",
+      subtitle: "Sharing knowledge about web development, mobile apps, and software architecture.",
+      backBtn: "Back to Home",
+      backToBlog: "Back to Blog",
     },
     booking: {
       title: "Schedule a Meeting",

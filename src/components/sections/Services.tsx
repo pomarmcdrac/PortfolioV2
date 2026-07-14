@@ -1,7 +1,14 @@
 "use client";
 
 import styles from "./Services.module.css";
-import { Smartphone, Globe, Server, CheckCircle2 } from "lucide-react";
+import {
+  Smartphone,
+  Globe,
+  Server,
+  CheckCircle2,
+  Cpu,
+  ShieldCheck,
+} from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import Link from "next/link";
 
@@ -10,37 +17,28 @@ export default function Services() {
 
   const services = [
     {
-      title: t.services.fullstack.title,
-      description: t.services.fullstack.desc,
-      icon: <Globe size={28} />,
-      features: [
-        "Landing Pages Premium",
-        "Apps SaaS",
-        "E-commerce",
-        "Admin Panels",
-      ], // Podrías traducir esto también si quisieras
-    },
-    {
-      title: t.services.mobile.title,
-      description: t.services.mobile.desc,
-      icon: <Smartphone size={28} />,
-      features: [
-        "UI/UX Nativo",
-        "Animaciones",
-        "iOS & Android",
-        "Store Publish",
-      ],
-    },
-    {
-      title: t.services.backend.title,
-      description: t.services.backend.desc,
+      title: t.solutions.saas.title,
+      description: t.solutions.saas.desc,
       icon: <Server size={28} />,
-      features: [
-        "APIs REST/GraphQL",
-        "SQL/NoSQL",
-        "Auth Security",
-        "Cloud Scale",
-      ],
+      features: t.solutions.saas.features || [],
+    },
+    {
+      title: t.solutions.mobile.title,
+      description: t.solutions.mobile.desc,
+      icon: <Smartphone size={28} />,
+      features: t.solutions.mobile.features || [],
+    },
+    {
+      title: t.solutions.iot.title,
+      description: t.solutions.iot.desc,
+      icon: <Cpu size={28} />,
+      features: t.solutions.iot.features || [],
+    },
+    {
+      title: t.solutions.fintech.title,
+      description: t.solutions.fintech.desc,
+      icon: <ShieldCheck size={28} />,
+      features: t.solutions.fintech.features || [],
     },
   ];
 
@@ -53,7 +51,7 @@ export default function Services() {
           textAlign: "center",
         }}
       >
-        {t.services.title}
+        {t.solutions.title}
       </h2>
       <p
         style={{
@@ -64,7 +62,7 @@ export default function Services() {
           fontSize: "1.1rem",
         }}
       >
-        {t.services.subtitle}
+        {t.solutions.subtitle}
       </p>
 
       <div className={styles.grid}>

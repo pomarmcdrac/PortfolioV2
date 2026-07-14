@@ -4,15 +4,17 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getBlogs } from "@/lib/api";
 import { ArrowLeft, Calendar, Loader2 } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function BlogIndex() {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     async function load() {
       try {
-        const data = await getBlogs();
+        const data = await getBlogs(language);
         setPosts(data);
       } catch (e) {
         console.error(e);
@@ -21,7 +23,7 @@ export default function BlogIndex() {
       }
     }
     load();
-  }, []);
+  }, [language]);
 
   return (
     <main
@@ -38,15 +40,35 @@ export default function BlogIndex() {
           display: "inline-flex",
           alignItems: "center",
           gap: "0.5rem",
+          color: "rgba(255, 255, 255, 0.45)",
+          textDecoration: "none",
+          fontWeight: "600",
+          transition: "all 0.3s",
+          padding: "0.7rem 1.2rem",
+          borderRadius: "12px",
+          background: "rgba(255, 255, 255, 0.03)",
+          border: "1px solid rgba(255, 255, 255, 0.05)",
+          fontSize: "0.95rem",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
           marginBottom: "2rem",
-          color: "rgba(255,255,255,0.6)",
-          transition: "color 0.2s",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
+          e.currentTarget.style.color = "white";
+          e.currentTarget.style.transform = "translateX(-5px)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
+          e.currentTarget.style.color = "rgba(255, 255, 255, 0.45)";
+          e.currentTarget.style.transform = "translateX(0)";
         }}
       >
-        <ArrowLeft size={20} /> Volver al Inicio
+        <ArrowLeft size={18} />
+        <span style={{ display: "inline-block", lineHeight: "1" }}>{t.blog.backBtn}</span>
       </Link>
 
-      <h1 style={{ fontSize: "3rem", marginBottom: "1rem" }}>Blog Técnico</h1>
+      <h1 style={{ fontSize: "3rem", marginBottom: "1rem" }}>{t.blog.title}</h1>
       <p
         style={{
           fontSize: "1.2rem",
@@ -54,8 +76,7 @@ export default function BlogIndex() {
           marginBottom: "4rem",
         }}
       >
-        Compartiendo conocimientos sobre desarrollo web, mobile y arquitectura
-        de software.
+        {t.blog.subtitle}
       </p>
 
       {loading ? (

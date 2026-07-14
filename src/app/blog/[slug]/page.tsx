@@ -6,14 +6,18 @@ import { getBlogBySlug } from "@/lib/api";
 import { notFound, useParams } from "next/navigation";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { ArrowLeft, Calendar, Loader2 } from "lucide-react";
+import { ArrowLeft, Calendar, Loader2, Hash } from "lucide-react";
 import styles from "./markdown.module.css";
+import BlogComments from "@/components/blog/BlogComments";
+import BlogReactions from "@/components/blog/BlogReactions";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function BlogPost() {
   const params = useParams();
   const slug = params?.slug as string;
   const [post, setPost] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (!slug) return;
@@ -70,12 +74,32 @@ export default function BlogPost() {
           display: "inline-flex",
           alignItems: "center",
           gap: "0.5rem",
+          color: "rgba(255, 255, 255, 0.45)",
+          textDecoration: "none",
+          fontWeight: "600",
+          transition: "all 0.3s",
+          padding: "0.7rem 1.2rem",
+          borderRadius: "12px",
+          background: "rgba(255, 255, 255, 0.03)",
+          border: "1px solid rgba(255, 255, 255, 0.05)",
+          fontSize: "0.95rem",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
           marginBottom: "2rem",
-          color: "rgba(255,255,255,0.6)",
-          transition: "color 0.2s",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
+          e.currentTarget.style.color = "white";
+          e.currentTarget.style.transform = "translateX(-5px)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
+          e.currentTarget.style.color = "rgba(255, 255, 255, 0.45)";
+          e.currentTarget.style.transform = "translateX(0)";
         }}
       >
-        <ArrowLeft size={20} /> Volver al Blog
+        <ArrowLeft size={18} />
+        <span style={{ display: "inline-block", lineHeight: "1" }}>{t.blog.backToBlog}</span>
       </Link>
 
       {post.imageUrl && (
@@ -98,22 +122,35 @@ export default function BlogPost() {
         </div>
       )}
 
-      <span style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: "0.8rem",
+          marginBottom: "1.5rem",
+          flexWrap: "wrap",
+        }}
+      >
         {(post.tags || []).map((tag: string) => (
           <span
             key={tag}
             style={{
-              color: "var(--color-primary)",
-              fontWeight: "bold",
-              textTransform: "uppercase",
-              fontSize: "0.85rem",
-              letterSpacing: "0.05em",
+              padding: "0.4rem 1rem",
+              borderRadius: "8px",
+              background: "rgba(0, 242, 255, 0.1)",
+              color: "#00f2ff",
+              fontSize: "0.9rem",
+              fontWeight: "600",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              textTransform: "capitalize",
             }}
           >
+            <Hash size={14} />
             {tag}
           </span>
         ))}
-      </span>
+      </div>
 
       <h1
         style={{
@@ -142,6 +179,14 @@ export default function BlogPost() {
       <article className={styles.markdown}>
         <Markdown remarkPlugins={[remarkGfm]}>{post.content || ""}</Markdown>
       </article>
+
+      {/* Reactions Section */}
+      <BlogReactions blogSlug={slug} />
+
+      {/* Comments Section */}
+      <BlogComments blogSlug={slug} />
+
+
     </main>
   );
 }

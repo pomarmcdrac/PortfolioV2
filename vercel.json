@@ -1,8 +1,7 @@
 {
-  "rewrites": [
-    {
-      "source": "/vidrios_morales/:path*",
-      "destination": "https://vidrios-morales.vercel.app/:path*"
+  "git": {
+    "deploymentEnabled": {
+      "preview": false
     }
-  ]
+  }
 }

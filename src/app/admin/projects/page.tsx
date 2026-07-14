@@ -56,6 +56,7 @@ export default function AdminProjects() {
     liveUrl: "",
     imageUrl: "",
     featured: false,
+    isConfidential: false,
     order: 0,
   });
 
@@ -104,6 +105,7 @@ export default function AdminProjects() {
       liveUrl: project.liveUrl || "",
       imageUrl: project.imageUrl || "",
       featured: project.featured || false,
+      isConfidential: project.isConfidential || false,
       order: project.order || 0,
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -135,6 +137,7 @@ export default function AdminProjects() {
       liveUrl: "",
       imageUrl: "",
       featured: false,
+      isConfidential: false,
       order: 0,
     });
   };
@@ -373,6 +376,7 @@ export default function AdminProjects() {
                   <option value="Backend">Backend</option>
                   <option value="Mobile">Mobile</option>
                   <option value="Full Stack">Full Stack</option>
+                  <option value="IoT & Domótica">IoT & Domótica</option>
                 </select>
               </div>
               <div style={{ display: "grid", gap: "0.4rem" }}>
@@ -450,24 +454,49 @@ export default function AdminProjects() {
                   style={baseInputStyle}
                 />
               </div>
-              <label
+              <div
                 style={{
                   display: "flex",
-                  alignItems: "center",
+                  flexDirection: "column",
                   gap: "0.5rem",
-                  cursor: "pointer",
-                  paddingBottom: "0.8rem",
+                  paddingBottom: "0.4rem",
                 }}
               >
-                <input
-                  type="checkbox"
-                  checked={formData.featured}
-                  onChange={(e) =>
-                    setFormData({ ...formData, featured: e.target.checked })
-                  }
-                />
-                Destacado (Featured)
-              </label>
+                <label
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    cursor: "pointer",
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={formData.featured}
+                    onChange={(e) =>
+                      setFormData({ ...formData, featured: e.target.checked })
+                    }
+                  />
+                  Destacado (Featured)
+                </label>
+                <label
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    cursor: "pointer",
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={formData.isConfidential}
+                    onChange={(e) =>
+                      setFormData({ ...formData, isConfidential: e.target.checked })
+                    }
+                  />
+                  Confidencial (NDA)
+                </label>
+              </div>
             </div>
 
             <div

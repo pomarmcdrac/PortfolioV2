@@ -434,20 +434,26 @@ export default function AdminBlog() {
                 {blog.imageUrl && (
                   <div
                     style={{
-                      height: "120px",
                       width: "100%",
                       borderRadius: "8px",
                       overflow: "hidden",
                       marginBottom: "1rem",
+                      background: "rgba(0,0,0,0.2)",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      maxHeight: "160px",
                     }}
                   >
                     <img
                       src={blog.imageUrl}
                       alt={blog.title}
                       style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
+                        maxWidth: "100%",
+                        maxHeight: "160px",
+                        width: "auto",
+                        height: "auto",
+                        objectFit: "contain",
                       }}
                     />
                   </div>

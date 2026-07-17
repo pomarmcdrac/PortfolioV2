@@ -15,6 +15,7 @@ export default function BlogIndex() {
     async function load() {
       try {
         const data = await getBlogs(language);
+        console.log("POSTS DATA ON CLIENT:", data);
         setPosts(data);
       } catch (e) {
         console.error(e);
@@ -91,104 +92,120 @@ export default function BlogIndex() {
         </div>
       ) : (
         <div style={{ display: "grid", gap: "2rem" }}>
-          {posts.map((post) => (
-            <Link
-              key={post.slug}
-              href={`/blog/${post.slug}`}
-              style={{ textDecoration: "none" }}
-            >
-              <article
-                style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.05)",
-                  borderRadius: "20px",
-                  overflow: "hidden",
-                  transition: "all 0.3s ease",
-                }}
-                className="blog-card"
+          {posts.map((post) => {
+            const title = post.title || (language === "ES" ? post.titleEs : post.titleEn) || post.titleEn || post.titleEs || "";
+            const summary = post.summary || (language === "ES" ? post.summaryEs : post.summaryEn) || post.summaryEn || post.summaryEs || post.excerpt || "";
+            const imageUrl = post.coverImage || post.cover_image || post.imageUrl || post.image_url || "";
+            const rawDate = post.publishedAt || post.published_at || post.createdAt || post.created_at || post.date;
+
+            const formatDate = (dateStr: any) => {
+              if (!dateStr) return "";
+              const d = new Date(dateStr);
+              return isNaN(d.getTime()) ? "" : d.toLocaleDateString();
+            };
+
+            return (
+              <Link
+                key={post.slug}
+                href={`/blog/${post.slug}`}
+                style={{ textDecoration: "none" }}
               >
-                {post.imageUrl && (
-                  <div
-                    style={{
-                      height: "240px",
-                      width: "100%",
-                      overflow: "hidden",
-                    }}
-                  >
-                    <img
-                      src={post.imageUrl}
-                      alt={post.title}
+                <article
+                  style={{
+                    background: "rgba(255,255,255,0.03)",
+                    border: "1px solid rgba(255,255,255,0.05)",
+                    borderRadius: "20px",
+                    overflow: "hidden",
+                    transition: "all 0.3s ease",
+                  }}
+                  className="blog-card"
+                >
+                  {imageUrl && (
+                    <div
                       style={{
                         width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                        transition: "transform 0.5s ease",
-                      }}
-                      className="card-image"
-                    />
-                  </div>
-                )}
-                <div style={{ padding: "2rem" }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "1rem",
-                      alignItems: "center",
-                      marginBottom: "1rem",
-                      fontSize: "0.9rem",
-                      color: "rgba(255,255,255,0.5)",
-                    }}
-                  >
-                    <span
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.4rem",
+                        overflow: "hidden",
                       }}
                     >
-                      <Calendar size={16} />{" "}
-                      {new Date(post.date).toLocaleDateString()}
-                    </span>
-                    <span style={{ display: "flex", gap: "0.5rem" }}>
-                      {(post.tags || []).map((tag: string) => (
-                        <span
-                          key={tag}
-                          style={{
-                            color: "var(--color-primary)",
-                            background: "rgba(56, 189, 248, 0.1)",
-                            padding: "0.1rem 0.6rem",
-                            borderRadius: "6px",
-                            fontSize: "0.8rem",
-                          }}
-                        >
-                          #{tag}
-                        </span>
-                      ))}
-                    </span>
+                      <img
+                        src={imageUrl}
+                        alt={title}
+                        style={{
+                          width: "100%",
+                          height: "auto",
+                          display: "block",
+                          transition: "transform 0.5s ease",
+                        }}
+                        className="card-image"
+                      />
+                    </div>
+                  )}
+                  <div style={{ padding: "2rem" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "1rem",
+                        alignItems: "center",
+                        marginBottom: "1rem",
+                        fontSize: "0.9rem",
+                        color: "rgba(255,255,255,0.5)",
+                      }}
+                    >
+                      <span
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.4rem",
+                        }}
+                      >
+                        <Calendar size={16} />{" "}
+                        {formatDate(rawDate) || "Sin fecha"}
+                      </span>
+                      <span style={{ display: "flex", gap: "0.5rem" }}>
+                        {(post.tags || []).map((tag: string) => (
+                          <span
+                            key={tag}
+                            style={{
+                              color: "var(--color-primary)",
+                              background: "rgba(56, 189, 248, 0.1)",
+                              padding: "0.1rem 0.6rem",
+                              borderRadius: "6px",
+                              fontSize: "0.8rem",
+                            }}
+                          >
+                            #{tag}
+                          </span>
+                        ))}
+                      </span>
+                    </div>
+                    {title && (
+                      <h2
+                        style={{
+                          fontSize: "1.8rem",
+                          marginBottom: "1rem",
+                          color: "white",
+                          fontWeight: "700",
+                        }}
+                      >
+                        {title}
+                      </h2>
+                    )}
+                    {summary && (
+                      <p
+                        style={{
+                          color: "rgba(255,255,255,0.7)",
+                          lineHeight: 1.6,
+                          fontSize: "1rem",
+                        }}
+                      >
+                        {summary}
+                      </p>
+                    )}
                   </div>
-                  <h2
-                    style={{
-                      fontSize: "1.8rem",
-                      marginBottom: "1rem",
-                      color: "white",
-                      fontWeight: "700",
-                    }}
-                  >
-                    {post.title}
-                  </h2>
-                  <p
-                    style={{
-                      color: "rgba(255,255,255,0.7)",
-                      lineHeight: 1.6,
-                      fontSize: "1rem",
-                    }}
-                  >
-                    {post.excerpt}
-                  </p>
-                </div>
-              </article>
-            </Link>
-          ))}
+                </article>
+              </Link>
+            );
+          })}
         </div>
       )}
 

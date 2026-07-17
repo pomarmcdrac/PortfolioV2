@@ -104,8 +104,8 @@ export default function BlogPost() {
       </Link>
 
       {(() => {
-        const title = post.title || (language === "ES" ? post.titleEs : post.titleEn) || post.titleEn || post.titleEs || "";
-        const content = post.content || (language === "ES" ? post.contentEs : post.contentEn) || post.contentEn || post.contentEs || "";
+        const title = language === "ES" ? (post.titleEs || post.title) : (post.title || post.titleEn || post.titleEs || "");
+        const content = language === "ES" ? (post.contentEs || post.content) : (post.content || post.contentEn || post.contentEs || "");
         const imageUrl = post.coverImage || post.cover_image || post.imageUrl || post.image_url || "";
         const rawDate = post.publishedAt || post.published_at || post.createdAt || post.created_at || post.date;
 

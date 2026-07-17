@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Loader2 } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface ReactionCount {
   like: number;
@@ -30,6 +31,7 @@ const REACTION_CONFIG = [
 ];
 
 export default function BlogReactions({ blogSlug }: BlogReactionsProps) {
+  const { language } = useLanguage();
   const [counts, setCounts] = useState<ReactionCount>({ like: 0, rocket: 0, thumbs: 0, lightbulb: 0 });
   const [userReactions, setUserReactions] = useState<UserReactions>({ like: false, rocket: false, thumbs: false, lightbulb: false });
   const [session, setSession] = useState<any>(null);
@@ -164,19 +166,25 @@ export default function BlogReactions({ blogSlug }: BlogReactionsProps) {
   return (
     <div style={{ margin: "2.5rem 0", display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
       <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-        ¿Qué te pareció este artículo?
+        {language === "ES" ? "¿Qué te pareció este artículo?" : "What did you think of this article?"}
       </span>
       <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "1rem" }}>
         {REACTION_CONFIG.map(({ type, emoji, label, color, activeGlow }) => {
           const isActive = userReactions[type];
           const isToggling = togglingType === type;
+          const labelTranslated = language === "ES" ? label : ({
+            "Me gusta": "Like",
+            "Brillante": "Brilliant",
+            "De acuerdo": "Agree",
+            "Útil": "Useful"
+          }[label] || label);
 
           return (
             <button
               key={type}
               onClick={() => handleToggleReaction(type)}
               disabled={isToggling}
-              title={label}
+              title={labelTranslated}
               style={{
                 display: "flex",
                 alignItems: "center",

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { User, MessageSquare, Send, Trash2, Loader2 } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Comment {
   id: string;
@@ -19,6 +20,7 @@ interface BlogCommentsProps {
 }
 
 export default function BlogComments({ blogSlug }: BlogCommentsProps) {
+  const { language } = useLanguage();
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<any>(null);
@@ -93,27 +95,31 @@ export default function BlogComments({ blogSlug }: BlogCommentsProps) {
       };
 
       const { error } = await supabase.from("blog_comments").insert([payload]);
-
       if (error) {
-        // Handle trigger exception
         if (error.message.includes("spam")) {
-          throw new Error("Por favor espera 30 segundos entre comentarios para evitar spam.");
+          throw new Error(
+            language === "ES"
+              ? "Por favor espera 30 segundos entre comentarios para evitar spam."
+              : "Please wait 30 seconds between comments to prevent spam."
+          );
         }
         throw error;
       }
-
       setNewComment("");
       await loadComments();
     } catch (err: any) {
       console.error("Error creating comment:", err);
-      setErrorMessage(err.message || "Error al publicar tu comentario.");
+      setErrorMessage(err.message || (language === "ES" ? "Error al publicar tu comentario." : "Error posting your comment."));
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDelete = async (commentId: string) => {
-    if (!confirm("¿Seguro que quieres eliminar tu comentario?")) return;
+    const confirmMsg = language === "ES"
+      ? "¿Seguro que quieres eliminar tu comentario?"
+      : "Are you sure you want to delete your comment?";
+    if (!confirm(confirmMsg)) return;
 
     try {
       const { error } = await supabase
@@ -125,7 +131,7 @@ export default function BlogComments({ blogSlug }: BlogCommentsProps) {
       setComments(comments.filter((c) => c.id !== commentId));
     } catch (err) {
       console.error("Error deleting comment:", err);
-      alert("Error al eliminar el comentario.");
+      alert(language === "ES" ? "Error al eliminar el comentario." : "Error deleting comment.");
     }
   };
 
@@ -134,7 +140,7 @@ export default function BlogComments({ blogSlug }: BlogCommentsProps) {
       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "2rem" }}>
         <MessageSquare size={24} style={{ color: "var(--color-primary)" }} />
         <h2 style={{ fontSize: "1.75rem", margin: 0, color: "white" }}>
-          Comentarios ({comments.length})
+          {language === "ES" ? "Comentarios" : "Comments"} ({comments.length})
         </h2>
       </div>
 
@@ -150,7 +156,9 @@ export default function BlogComments({ blogSlug }: BlogCommentsProps) {
             backdropFilter: "blur(10px)",
           }}>
             <p style={{ color: "rgba(255,255,255,0.6)", marginBottom: "1.2rem", fontSize: "0.95rem" }}>
-              Inicia sesión con Google para compartir tu opinión sobre este artículo de forma segura.
+              {language === "ES"
+                ? "Inicia sesión con Google para compartir tu opinión sobre este artículo de forma segura."
+                : "Sign in with Google to share your thoughts on this article securely."}
             </p>
             <button
               onClick={handleLogin}
@@ -178,7 +186,7 @@ export default function BlogComments({ blogSlug }: BlogCommentsProps) {
                 <path fill="#FBBC05" d="M3.95 10.62A5.4 5.4 0 0 1 3.6 9c0-.56.1-1.11.35-1.62V5.05H.9a9 9 0 0 0 0 7.9l3.05-2.33z"/>
                 <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.1A9 9 0 0 0 .9 5.05l3.05 2.33A5.4 5.4 0 0 1 9 3.58z"/>
               </svg>
-              Comentar con Google
+              {language === "ES" ? "Comentar con Google" : "Comment with Google"}
             </button>
           </div>
         ) : (
@@ -208,13 +216,17 @@ export default function BlogComments({ blogSlug }: BlogCommentsProps) {
                 </div>
               )}
               <span style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.8)", fontWeight: "600" }}>
-                Identificado como {user.user_metadata.full_name || user.user_metadata.name}
+                {language === "ES" ? "Identificado como" : "Signed in as"} {user.user_metadata.full_name || user.user_metadata.name}
               </span>
             </div>
 
             <div style={{ position: "relative" }}>
               <textarea
-                placeholder="Deja tu comentario sobre este artículo (máx. 500 caracteres)..."
+                placeholder={
+                  language === "ES"
+                    ? "Deja tu comentario sobre este artículo (máx. 500 caracteres)..."
+                    : "Leave your comment on this article (max 500 characters)..."
+                }
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 maxLength={500}
@@ -279,7 +291,9 @@ export default function BlogComments({ blogSlug }: BlogCommentsProps) {
               ) : (
                 <Send size={16} />
               )}
-              {submitting ? "Publicando..." : "Comentar"}
+              {submitting
+                ? (language === "ES" ? "Publicando..." : "Posting...")
+                : (language === "ES" ? "Comentar" : "Comment")}
             </button>
           </form>
         )}
@@ -294,7 +308,9 @@ export default function BlogComments({ blogSlug }: BlogCommentsProps) {
         ) : comments.length === 0 ? (
           <div style={{ textAlign: "center", padding: "3rem 1rem", opacity: 0.5 }}>
             <p style={{ fontSize: "0.95rem", margin: 0 }}>
-              No hay comentarios aún. ¡Sé el primero en comentar!
+              {language === "ES"
+                ? "No hay comentarios aún. ¡Sé el primero en comentar!"
+                : "No comments yet. Be the first to comment!"}
             </p>
           </div>
         ) : (
@@ -345,7 +361,7 @@ export default function BlogComments({ blogSlug }: BlogCommentsProps) {
                           {comment.user_name}
                         </span>
                         <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.8rem" }}>
-                          {new Date(comment.created_at).toLocaleDateString(undefined, {
+                          {new Date(comment.created_at).toLocaleDateString(language === "ES" ? "es-ES" : "en-US", {
                             day: "numeric",
                             month: "short",
                             year: "numeric",

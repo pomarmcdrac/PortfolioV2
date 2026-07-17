@@ -17,13 +17,14 @@ export default function BlogPost() {
   const slug = params?.slug as string;
   const [post, setPost] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     if (!slug) return;
     async function load() {
       try {
         const data = await getBlogBySlug(slug);
+        console.log("POST DETAILS ON CLIENT:", data);
         if (!data) setPost(null);
         else setPost(data);
       } catch (e) {
@@ -33,7 +34,7 @@ export default function BlogPost() {
       }
     }
     load();
-  }, [slug]);
+  }, [slug, language]);
 
   if (loading) {
     return (
@@ -102,83 +103,103 @@ export default function BlogPost() {
         <span style={{ display: "inline-block", lineHeight: "1" }}>{t.blog.backToBlog}</span>
       </Link>
 
-      {post.imageUrl && (
-        <div
-          style={{
-            width: "100%",
-            height: "440px",
-            borderRadius: "24px",
-            overflow: "hidden",
-            marginBottom: "3rem",
-            border: "1px solid rgba(255,255,255,0.1)",
-            boxShadow: "0 20px 40px -20px rgba(0,0,0,0.5)",
-          }}
-        >
-          <img
-            src={post.imageUrl}
-            alt={post.title}
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-          />
-        </div>
-      )}
+      {(() => {
+        const title = post.title || (language === "ES" ? post.titleEs : post.titleEn) || post.titleEn || post.titleEs || "";
+        const content = post.content || (language === "ES" ? post.contentEs : post.contentEn) || post.contentEn || post.contentEs || "";
+        const imageUrl = post.coverImage || post.cover_image || post.imageUrl || post.image_url || "";
+        const rawDate = post.publishedAt || post.published_at || post.createdAt || post.created_at || post.date;
 
-      <div
-        style={{
-          display: "flex",
-          gap: "0.8rem",
-          marginBottom: "1.5rem",
-          flexWrap: "wrap",
-        }}
-      >
-        {(post.tags || []).map((tag: string) => (
-          <span
-            key={tag}
-            style={{
-              padding: "0.4rem 1rem",
-              borderRadius: "8px",
-              background: "rgba(0, 242, 255, 0.1)",
-              color: "#00f2ff",
-              fontSize: "0.9rem",
-              fontWeight: "600",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              textTransform: "capitalize",
-            }}
-          >
-            <Hash size={14} />
-            {tag}
-          </span>
-        ))}
-      </div>
+        const formatDate = (dateStr: any) => {
+          if (!dateStr) return "";
+          const d = new Date(dateStr);
+          return isNaN(d.getTime()) ? "" : d.toLocaleDateString();
+        };
 
-      <h1
-        style={{
-          fontSize: "3.5rem",
-          marginBottom: "1.5rem",
-          lineHeight: 1.1,
-          color: "white",
-          fontWeight: "800",
-        }}
-      >
-        {post.title}
-      </h1>
+        return (
+          <>
+            {imageUrl && (
+              <div
+                style={{
+                  width: "100%",
+                  borderRadius: "24px",
+                  overflow: "hidden",
+                  marginBottom: "3rem",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  boxShadow: "0 20px 40px -20px rgba(0,0,0,0.5)",
+                }}
+              >
+                <img
+                  src={imageUrl}
+                  alt={title}
+                  style={{ width: "100%", height: "auto", display: "block" }}
+                />
+              </div>
+            )}
 
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "0.5rem",
-          color: "rgba(255,255,255,0.6)",
-          marginBottom: "4rem",
-        }}
-      >
-        <Calendar size={18} /> {new Date(post.date).toLocaleDateString()}
-      </div>
+            <div
+              style={{
+                display: "flex",
+                gap: "0.8rem",
+                marginBottom: "1.5rem",
+                flexWrap: "wrap",
+              }}
+            >
+              {(post.tags || []).map((tag: string) => (
+                <span
+                  key={tag}
+                  style={{
+                    padding: "0.4rem 1rem",
+                    borderRadius: "8px",
+                    background: "rgba(0, 242, 255, 0.1)",
+                    color: "#00f2ff",
+                    fontSize: "0.9rem",
+                    fontWeight: "600",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    textTransform: "capitalize",
+                  }}
+                >
+                  <Hash size={14} />
+                  {tag}
+                </span>
+              ))}
+            </div>
 
-      <article className={styles.markdown}>
-        <Markdown remarkPlugins={[remarkGfm]}>{post.content || ""}</Markdown>
-      </article>
+            {title && (
+              <h1
+                style={{
+                  fontSize: "3.5rem",
+                  marginBottom: "1.5rem",
+                  lineHeight: 1.1,
+                  color: "white",
+                  fontWeight: "800",
+                }}
+              >
+                {title}
+              </h1>
+            )}
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                color: "rgba(255,255,255,0.6)",
+                marginBottom: "4rem",
+              }}
+            >
+              <Calendar size={18} /> {formatDate(rawDate) || "Sin fecha"}
+            </div>
+
+            <article className={styles.markdown}>
+              <Markdown remarkPlugins={[remarkGfm]}>
+                {content}
+              </Markdown>
+            </article>
+          </>
+        );
+      })()}
 
       {/* Reactions Section */}
       <BlogReactions blogSlug={slug} />

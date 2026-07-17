@@ -523,6 +523,38 @@ export async function deleteSkill(id: string): Promise<boolean> {
   }
 }
 
+function mapBackendPostToFrontend(post: any, lang?: string) {
+  if (!post) return null;
+  if (lang) {
+    return {
+      id: post.id,
+      slug: post.slug,
+      title: post.title,
+      content: post.content,
+      excerpt: post.summary || "",
+      imageUrl: post.coverImage || "",
+      date: post.publishedAt || post.createdAt || "",
+      tags: post.tags || [],
+      published: post.published,
+    };
+  } else {
+    return {
+      id: post.id,
+      slug: post.slug,
+      title: post.titleEn || "",
+      titleEs: post.titleEs || "",
+      content: post.contentEn || "",
+      contentEs: post.contentEs || "",
+      excerpt: post.summaryEn || "",
+      excerptEs: post.summaryEs || "",
+      imageUrl: post.coverImage || "",
+      date: post.publishedAt || post.createdAt || "",
+      tags: post.tags || [],
+      published: post.published,
+    };
+  }
+}
+
 /**
  * Fetch all blogs
  */
@@ -546,7 +578,8 @@ export async function getBlogs(lang?: string): Promise<any[]> {
     }
     const rawData = await response.json();
     const data = extractResult(rawData);
-    return Array.isArray(data) ? data : [];
+    if (!Array.isArray(data)) return [];
+    return data.map((post) => mapBackendPostToFrontend(post, lang));
   } catch (error) {
     return [];
   }
@@ -555,17 +588,22 @@ export async function getBlogs(lang?: string): Promise<any[]> {
 /**
  * Fetch a single blog post by slug
  */
-export async function getBlogBySlug(slug: string): Promise<any | null> {
+export async function getBlogBySlug(slug: string, lang?: string): Promise<any | null> {
   const baseUrl = getBaseUrl();
   try {
-    const response = await fetch(`${baseUrl}/blogs/${slug}`, {
+    let url = `${baseUrl}/blogs/${slug}`;
+    if (lang) {
+      url += `?lang=${encodeURIComponent(lang.toLowerCase())}`;
+    }
+    const response = await fetch(url, {
       next: { revalidate: 3600 },
       headers: { ...getAuthHeader() },
     });
 
     if (!response.ok) return null;
     const rawData = await response.json();
-    return extractResult(rawData);
+    const data = extractResult(rawData);
+    return mapBackendPostToFrontend(data, lang);
   } catch (error) {
     return null;
   }
@@ -577,13 +615,27 @@ export async function getBlogBySlug(slug: string): Promise<any | null> {
 export async function createBlog(blogData: any): Promise<boolean> {
   const baseUrl = getBaseUrl();
   try {
+    const payload = {
+      slug: blogData.slug,
+      titleEn: blogData.title,
+      titleEs: blogData.titleEs,
+      contentEn: blogData.content,
+      contentEs: blogData.contentEs,
+      summaryEn: blogData.excerpt || null,
+      summaryEs: blogData.excerptEs || null,
+      coverImage: blogData.imageUrl || null,
+      published: blogData.published ?? true,
+      publishedAt: blogData.date ? new Date(blogData.date).toISOString() : null,
+      tags: Array.isArray(blogData.tags) ? blogData.tags : [],
+    };
+
     const response = await fetch(`${baseUrl}/blogs`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         ...getAuthHeader(),
       },
-      body: JSON.stringify(blogData),
+      body: JSON.stringify(payload),
     });
 
     return response.ok;
@@ -598,13 +650,27 @@ export async function createBlog(blogData: any): Promise<boolean> {
 export async function updateBlog(id: string, blogData: any): Promise<boolean> {
   const baseUrl = getBaseUrl();
   try {
+    const payload = {
+      slug: blogData.slug,
+      titleEn: blogData.title,
+      titleEs: blogData.titleEs,
+      contentEn: blogData.content,
+      contentEs: blogData.contentEs,
+      summaryEn: blogData.excerpt || null,
+      summaryEs: blogData.excerptEs || null,
+      coverImage: blogData.imageUrl || null,
+      published: blogData.published ?? true,
+      publishedAt: blogData.date ? new Date(blogData.date).toISOString() : null,
+      tags: Array.isArray(blogData.tags) ? blogData.tags : [],
+    };
+
     const response = await fetch(`${baseUrl}/blogs/${id}`, {
-      method: "PUT",
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         ...getAuthHeader(),
       },
-      body: JSON.stringify(blogData),
+      body: JSON.stringify(payload),
     });
 
     return response.ok;

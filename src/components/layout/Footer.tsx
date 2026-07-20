@@ -1,9 +1,13 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const { language } = useLanguage();
+  const isEs = language === "ES";
 
   return (
     <footer
@@ -22,7 +26,7 @@ export default function Footer() {
           margin: "0 auto",
           display: "flex",
           flexDirection: "column",
-          gap: "1rem",
+          gap: "1.2rem",
           alignItems: "center",
         }}
       >
@@ -56,6 +60,54 @@ export default function Footer() {
           >
             LinkedIn
           </a>
+        </div>
+
+        {/* Legal Links */}
+        <div
+          style={{
+            display: "flex",
+            gap: "1.5rem",
+            fontSize: "0.85rem",
+          }}
+        >
+          <Link
+            href="/privacy"
+            style={{
+              color: "var(--color-foreground)",
+              opacity: 0.55,
+              textDecoration: "none",
+              transition: "opacity 0.2s, color 0.2s",
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.opacity = "1";
+              e.currentTarget.style.color = "var(--color-primary)";
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.opacity = "0.55";
+              e.currentTarget.style.color = "var(--color-foreground)";
+            }}
+          >
+            {isEs ? "Política de Privacidad" : "Privacy Policy"}
+          </Link>
+          <Link
+            href="/terms"
+            style={{
+              color: "var(--color-foreground)",
+              opacity: 0.55,
+              textDecoration: "none",
+              transition: "opacity 0.2s, color 0.2s",
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.opacity = "1";
+              e.currentTarget.style.color = "var(--color-primary)";
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.opacity = "0.55";
+              e.currentTarget.style.color = "var(--color-foreground)";
+            }}
+          >
+            {isEs ? "Condiciones del Servicio" : "Terms of Service"}
+          </Link>
         </div>
 
         {/* Copyright */}

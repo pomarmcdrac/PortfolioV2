@@ -69,12 +69,13 @@ export default function BlogIndex() {
         <span style={{ display: "inline-block", lineHeight: "1" }}>{t.blog.backBtn}</span>
       </Link>
 
-      <h1 style={{ fontSize: "3rem", marginBottom: "1rem" }}>{t.blog.title}</h1>
+      <h1 className="main-title" style={{ fontSize: "clamp(2rem, 8vw, 3rem)", marginBottom: "1rem" }}>{t.blog.title}</h1>
       <p
+        className="main-subtitle"
         style={{
-          fontSize: "1.2rem",
+          fontSize: "clamp(1rem, 4vw, 1.2rem)",
           color: "rgba(255,255,255,0.7)",
-          marginBottom: "4rem",
+          marginBottom: "clamp(2rem, 6vw, 4rem)",
         }}
       >
         {t.blog.subtitle}
@@ -140,12 +141,13 @@ export default function BlogIndex() {
                       />
                     </div>
                   )}
-                  <div style={{ padding: "2rem" }}>
+                  <div className="blog-card-content" style={{ padding: "clamp(1.25rem, 5vw, 2rem)" }}>
                     <div
                       style={{
                         display: "flex",
                         gap: "1rem",
                         alignItems: "center",
+                        flexWrap: "wrap",
                         marginBottom: "1rem",
                         fontSize: "0.9rem",
                         color: "rgba(255,255,255,0.5)",
@@ -161,7 +163,7 @@ export default function BlogIndex() {
                         <Calendar size={16} />{" "}
                         {formatDate(rawDate) || "Sin fecha"}
                       </span>
-                      <span style={{ display: "flex", gap: "0.5rem" }}>
+                      <span style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
                         {(post.tags || []).map((tag: string) => (
                           <span
                             key={tag}
@@ -181,7 +183,7 @@ export default function BlogIndex() {
                     {title && (
                       <h2
                         style={{
-                          fontSize: "1.8rem",
+                          fontSize: "clamp(1.3rem, 5vw, 1.8rem)",
                           marginBottom: "1rem",
                           color: "white",
                           fontWeight: "700",

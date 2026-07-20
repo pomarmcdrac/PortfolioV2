@@ -374,7 +374,7 @@ export default function BookingPage() {
 
         <div className="main-form-container">
           {/* Progress Indicator */}
-          {step < 5 && (
+          {supabaseUser && step < 5 && (
             <div className="progress-nav">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="progress-step-item">
@@ -392,8 +392,98 @@ export default function BookingPage() {
           )}
 
           <AnimatePresence mode="wait">
-            {/* STEP 1: TOPIC */}
-            {step === 1 && (
+            {authLoading ? (
+              <motion.div
+                key="auth-loading"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="step-content glass-card"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "4rem 2rem",
+                  textAlign: "center"
+                }}
+              >
+                <Loader2 className="animate-spin" size={40} color="var(--color-primary)" />
+              </motion.div>
+            ) : !supabaseUser && step < 5 ? (
+              <motion.div
+                key="auth-required"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="step-content glass-card"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "4rem 2rem",
+                  textAlign: "center",
+                  gap: "1.5rem"
+                }}
+              >
+                <div style={{
+                  width: "60px",
+                  height: "60px",
+                  borderRadius: "50%",
+                  background: "rgba(56, 189, 248, 0.1)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "var(--color-primary)"
+                }}>
+                  <User size={30} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: "1.3rem", fontWeight: "700", color: "white", marginBottom: "0.5rem" }}>
+                    {language === "ES" ? "Verificación de Cuenta Requerida" : "Google Authentication Required"}
+                  </h3>
+                  <p style={{ fontSize: "0.95rem", color: "rgba(255,255,255,0.6)", maxWidth: "450px", margin: "0 auto", lineHeight: "1.6" }}>
+                    {language === "ES"
+                      ? "Para garantizar citas legítimas y agendar automáticamente en el calendario, es necesario iniciar sesión con tu cuenta de Google antes de comenzar."
+                      : "To guarantee legitimate bookings and schedule meetings automatically in the calendar, please sign in with your Google account first."}
+                  </p>
+                </div>
+                <button
+                  onClick={handleGoogleSignIn}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                    padding: "0.8rem 1.75rem",
+                    background: "white",
+                    color: "black",
+                    border: "none",
+                    borderRadius: "99px",
+                    fontWeight: "700",
+                    fontSize: "0.95rem",
+                    cursor: "pointer",
+                    boxShadow: "0 10px 20px -5px rgba(255,255,255,0.2)",
+                    transition: "transform 0.2s"
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.03)"}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+                >
+                  <svg width="18" height="18" viewBox="0 0 18 18">
+                    <path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84a4.14 4.14 0 0 1-1.8 2.71v2.26h2.91c1.7-1.56 2.69-3.86 2.69-6.6z"/>
+                    <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.2l-2.91-2.26a5.6 5.6 0 0 1-8.1-2.92H.9v2.33A9 9 0 0 0 9 18z"/>
+                    <path fill="#FBBC05" d="M3.95 10.62A5.4 5.4 0 0 1 3.6 9c0-.56.1-1.11.35-1.62V5.05H.9a9 9 0 0 0 0 7.9l3.05-2.33z"/>
+                    <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.1A9 9 0 0 0 .9 5.05l3.05 2.33A5.4 5.4 0 0 1 9 3.58z"/>
+                  </svg>
+                  {language === "ES" ? "Verificar con Google" : "Verify with Google"}
+                </button>
+              </motion.div>
+            ) : (
+              <>
+                {/* STEP 1: TOPIC */}
+                {step === 1 && (
               <motion.div
                 key="step1"
                 variants={containerVariants}
@@ -847,6 +937,8 @@ export default function BookingPage() {
                   </button>
                 </div>
               </motion.div>
+            )}
+            </>
             )}
 
             {/* STEP 5: SUCCESS */}

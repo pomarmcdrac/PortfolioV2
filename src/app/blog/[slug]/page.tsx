@@ -65,7 +65,7 @@ export default function BlogPost() {
       style={{
         maxWidth: "900px",
         margin: "0 auto",
-        padding: "4rem 1.5rem",
+        padding: "clamp(2rem, 8vw, 4rem) clamp(1rem, 4vw, 1.5rem)",
         minHeight: "100vh",
       }}
     >
@@ -123,7 +123,7 @@ export default function BlogPost() {
                   width: "100%",
                   borderRadius: "24px",
                   overflow: "hidden",
-                  marginBottom: "3rem",
+                  marginBottom: "clamp(1.5rem, 6vw, 3rem)",
                   border: "1px solid rgba(255,255,255,0.1)",
                   boxShadow: "0 20px 40px -20px rgba(0,0,0,0.5)",
                 }}
@@ -169,7 +169,7 @@ export default function BlogPost() {
             {title && (
               <h1
                 style={{
-                  fontSize: "3.5rem",
+                  fontSize: "clamp(2rem, 7vw, 3.5rem)",
                   marginBottom: "1.5rem",
                   lineHeight: 1.1,
                   color: "white",
@@ -186,7 +186,7 @@ export default function BlogPost() {
                 alignItems: "center",
                 gap: "0.5rem",
                 color: "rgba(255,255,255,0.6)",
-                marginBottom: "4rem",
+                marginBottom: "clamp(2rem, 6vw, 4rem)",
               }}
             >
               <Calendar size={18} /> {formatDate(rawDate) || "Sin fecha"}

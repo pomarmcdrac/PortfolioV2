@@ -111,7 +111,10 @@ export async function POST(request: Request) {
         );
       }
 
-      const formattedPrivateKey = serviceAccountKey.replace(/\\n/g, "\n");
+      const formattedPrivateKey = serviceAccountKey
+        .replace(/^['"]/, "")
+        .replace(/['"]$/, "")
+        .replace(/\\n/g, "\n");
       const jwtClient = new google.auth.JWT({
         email: serviceAccountEmail,
         key: formattedPrivateKey,

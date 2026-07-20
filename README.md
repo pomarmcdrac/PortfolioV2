@@ -145,7 +145,7 @@ src/
 - [x] Panel de administración completo
 - [x] Seguridad Avanzada (Rate Limit & Proxy)
 - [x] Subida de imágenes a Cloudinary
-- [ ] Sistema de comentarios en blog
+- [x] Sistema de comentarios en blog
 - [ ] Modo claro/oscuro toggle
 - [ ] Galería de imágenes expandible en proyectos
 

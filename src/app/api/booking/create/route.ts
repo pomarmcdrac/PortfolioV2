@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { google } from "googleapis";
 
 // Simple in-memory rate limiter to prevent spamming bookings
 const bookingRateLimits = new Map<string, number>();
@@ -81,108 +80,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Initialize Google API Client with JWT
-    const calendarId = process.env.GOOGLE_CALENDAR_ID || "primary";
-
-    // Check if OAuth 2.0 credentials are available (Recommended for native Google Meet & inviting attendees)
-    const oAuthClientId = process.env.GOOGLE_CLIENT_ID;
-    const oAuthClientSecret = process.env.GOOGLE_CLIENT_SECRET;
-    const oAuthRefreshToken = process.env.GOOGLE_REFRESH_TOKEN;
-
-    let calendar;
-    let hangoutLink = "";
-    let useOAuth = false;
-
-    if (oAuthClientId && oAuthClientSecret && oAuthRefreshToken) {
-      useOAuth = true;
-      const oauth2Client = new google.auth.OAuth2(oAuthClientId, oAuthClientSecret);
-      oauth2Client.setCredentials({ refresh_token: oAuthRefreshToken });
-      calendar = google.calendar({ version: "v3", auth: oauth2Client });
-    } else {
-      // Fallback to Service Account JWT Client
-      const serviceAccountEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-      const serviceAccountKey = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY;
-
-      if (!serviceAccountEmail || !serviceAccountKey) {
-        console.error("Google credentials missing in server environment");
-        return NextResponse.json(
-          { error: "Credenciales de Google Calendar no configuradas en el servidor" },
-          { status: 500 }
-        );
-      }
-
-      const formattedPrivateKey = serviceAccountKey
-        .replace(/^['"]/, "")
-        .replace(/['"]$/, "")
-        .replace(/\\n/g, "\n");
-      const jwtClient = new google.auth.JWT({
-        email: serviceAccountEmail,
-        key: formattedPrivateKey,
-        scopes: ["https://www.googleapis.com/auth/calendar"],
-      });
-      await jwtClient.authorize();
-      calendar = google.calendar({ version: "v3", auth: jwtClient });
-    }
-
-    if (useOAuth) {
-      // Native Google Meet generation for OAuth 2.0 (running as real user)
-      const event = {
-        summary: `Cita: ${topic || "Consulta Técnica"} - ${firstName} ${lastName}`,
-        description: `${description || ""}\n\nContacto:\nTeléfono: ${phone || "No provisto"}\nCorreo: ${email}`,
-        start: {
-          dateTime: startTime,
-          timeZone: "America/Mexico_City",
-        },
-        end: {
-          dateTime: endTime,
-          timeZone: "America/Mexico_City",
-        },
-        attendees: [{ email: email }],
-        conferenceData: {
-          createRequest: {
-            requestId: `meet-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-            conferenceSolutionKey: {
-              type: "hangoutsMeet",
-            },
-          },
-        },
-      };
-
-      const googleResponse = await calendar.events.insert({
-        calendarId: calendarId,
-        requestBody: event,
-        conferenceDataVersion: 1,
-        sendUpdates: "all", // Send native invitation to the guest
-      });
-
-      hangoutLink = googleResponse.data.hangoutLink || "";
-    } else {
-      // Fallback for Service Account (using Jitsi / personal meeting link)
-      const fallbackMeetingLink = process.env.PERSONAL_MEETING_LINK || 
-        `https://meet.jit.si/mcdrac-booking-${Math.random().toString(36).substring(2, 9)}`;
-
-      const event = {
-        summary: `Cita: ${topic || "Consulta Técnica"} - ${firstName} ${lastName}`,
-        description: `${description || ""}\n\nContacto:\nTeléfono: ${phone || "No provisto"}\nCorreo: ${email}\n\nEnlace de Reunión (Video): ${fallbackMeetingLink}`,
-        start: {
-          dateTime: startTime,
-          timeZone: "America/Mexico_City",
-        },
-        end: {
-          dateTime: endTime,
-          timeZone: "America/Mexico_City",
-        },
-      };
-
-      await calendar.events.insert({
-        calendarId: calendarId,
-        requestBody: event,
-        sendUpdates: "none", // Skip Google's default email invitation to let Resend handle it
-      });
-
-      hangoutLink = fallbackMeetingLink;
-    }
-
     // Proxy the reservation to the NestJS API
     const nestApiUrl = process.env.API_URL;
     if (!nestApiUrl) {
@@ -193,7 +90,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const updatedDescription = `${description || ""}\n\nGoogle Meet: ${hangoutLink}`;
+    // Bundle topic and phone into description so NestJS saves it and uses it for the Google Calendar description
+    const finalDescription = `Tema: ${topic || "No provisto"}\nTeléfono: ${phone || "No provisto"}\n\nNotas:\n${description || ""}`;
 
     const nestResponse = await fetch(`${nestApiUrl}/booking/bookings`, {
       method: "POST",
@@ -206,7 +104,7 @@ export async function POST(request: Request) {
         email,
         startTime,
         endTime,
-        description: updatedDescription,
+        description: finalDescription,
       }),
     });
 
@@ -227,7 +125,6 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       booking: nestData,
-      meetLink: hangoutLink,
     });
   } catch (error: any) {
     console.error("Error in /api/booking/create:", error);

@@ -42,6 +42,7 @@ export default function BookingPage() {
   const [supabaseUser, setSupabaseUser] = useState<any>(null);
   const [supabaseSession, setSupabaseSession] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [googleAuthLoading, setGoogleAuthLoading] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -73,6 +74,7 @@ export default function BookingPage() {
   }, []);
 
   const handleGoogleSignIn = async () => {
+    setGoogleAuthLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -83,6 +85,7 @@ export default function BookingPage() {
       if (error) throw error;
     } catch (error) {
       console.error("Error signing in with Google:", error);
+      setGoogleAuthLoading(false);
     }
   };
 
@@ -453,6 +456,7 @@ export default function BookingPage() {
                 </div>
                 <button
                   onClick={handleGoogleSignIn}
+                  disabled={googleAuthLoading}
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -464,20 +468,27 @@ export default function BookingPage() {
                     borderRadius: "99px",
                     fontWeight: "700",
                     fontSize: "0.95rem",
-                    cursor: "pointer",
+                    cursor: googleAuthLoading ? "not-allowed" : "pointer",
                     boxShadow: "0 10px 20px -5px rgba(255,255,255,0.2)",
-                    transition: "transform 0.2s"
+                    transition: "transform 0.2s",
+                    opacity: googleAuthLoading ? 0.7 : 1
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.03)"}
-                  onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+                  onMouseEnter={(e) => !googleAuthLoading && (e.currentTarget.style.transform = "scale(1.03)")}
+                  onMouseLeave={(e) => !googleAuthLoading && (e.currentTarget.style.transform = "scale(1)")}
                 >
-                  <svg width="18" height="18" viewBox="0 0 18 18">
-                    <path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84a4.14 4.14 0 0 1-1.8 2.71v2.26h2.91c1.7-1.56 2.69-3.86 2.69-6.6z"/>
-                    <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.2l-2.91-2.26a5.6 5.6 0 0 1-8.1-2.92H.9v2.33A9 9 0 0 0 9 18z"/>
-                    <path fill="#FBBC05" d="M3.95 10.62A5.4 5.4 0 0 1 3.6 9c0-.56.1-1.11.35-1.62V5.05H.9a9 9 0 0 0 0 7.9l3.05-2.33z"/>
-                    <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.1A9 9 0 0 0 .9 5.05l3.05 2.33A5.4 5.4 0 0 1 9 3.58z"/>
-                  </svg>
-                  {language === "ES" ? "Verificar con Google" : "Verify with Google"}
+                  {googleAuthLoading ? (
+                    <Loader2 className="animate-spin" size={18} />
+                  ) : (
+                    <svg width="18" height="18" viewBox="0 0 18 18">
+                      <path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84a4.14 4.14 0 0 1-1.8 2.71v2.26h2.91c1.7-1.56 2.69-3.86 2.69-6.6z"/>
+                      <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.2l-2.91-2.26a5.6 5.6 0 0 1-8.1-2.92H.9v2.33A9 9 0 0 0 9 18z"/>
+                      <path fill="#FBBC05" d="M3.95 10.62A5.4 5.4 0 0 1 3.6 9c0-.56.1-1.11.35-1.62V5.05H.9a9 9 0 0 0 0 7.9l3.05-2.33z"/>
+                      <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.1A9 9 0 0 0 .9 5.05l3.05 2.33A5.4 5.4 0 0 1 9 3.58z"/>
+                    </svg>
+                  )}
+                  {googleAuthLoading
+                    ? (language === "ES" ? "Cargando..." : "Loading...")
+                    : (language === "ES" ? "Verificar con Google" : "Verify with Google")}
                 </button>
               </motion.div>
             ) : (
@@ -751,6 +762,7 @@ export default function BookingPage() {
                     </div>
                     <button
                       onClick={handleGoogleSignIn}
+                      disabled={googleAuthLoading}
                       style={{
                         display: "flex",
                         alignItems: "center",
@@ -762,20 +774,27 @@ export default function BookingPage() {
                         borderRadius: "99px",
                         fontWeight: "700",
                         fontSize: "0.95rem",
-                        cursor: "pointer",
+                        cursor: googleAuthLoading ? "not-allowed" : "pointer",
                         boxShadow: "0 10px 20px -5px rgba(255,255,255,0.2)",
-                        transition: "transform 0.2s"
+                        transition: "transform 0.2s",
+                        opacity: googleAuthLoading ? 0.7 : 1
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.03)"}
-                      onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+                      onMouseEnter={(e) => !googleAuthLoading && (e.currentTarget.style.transform = "scale(1.03)")}
+                      onMouseLeave={(e) => !googleAuthLoading && (e.currentTarget.style.transform = "scale(1)")}
                     >
-                      <svg width="18" height="18" viewBox="0 0 18 18">
-                        <path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84a4.14 4.14 0 0 1-1.8 2.71v2.26h2.91c1.7-1.56 2.69-3.86 2.69-6.6z"/>
-                        <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.2l-2.91-2.26a5.6 5.6 0 0 1-8.1-2.92H.9v2.33A9 9 0 0 0 9 18z"/>
-                        <path fill="#FBBC05" d="M3.95 10.62A5.4 5.4 0 0 1 3.6 9c0-.56.1-1.11.35-1.62V5.05H.9a9 9 0 0 0 0 7.9l3.05-2.33z"/>
-                        <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.1A9 9 0 0 0 .9 5.05l3.05 2.33A5.4 5.4 0 0 1 9 3.58z"/>
-                      </svg>
-                      Verificar con Google
+                      {googleAuthLoading ? (
+                        <Loader2 className="animate-spin" size={18} />
+                      ) : (
+                        <svg width="18" height="18" viewBox="0 0 18 18">
+                          <path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84a4.14 4.14 0 0 1-1.8 2.71v2.26h2.91c1.7-1.56 2.69-3.86 2.69-6.6z"/>
+                          <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.2l-2.91-2.26a5.6 5.6 0 0 1-8.1-2.92H.9v2.33A9 9 0 0 0 9 18z"/>
+                          <path fill="#FBBC05" d="M3.95 10.62A5.4 5.4 0 0 1 3.6 9c0-.56.1-1.11.35-1.62V5.05H.9a9 9 0 0 0 0 7.9l3.05-2.33z"/>
+                          <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.1A9 9 0 0 0 .9 5.05l3.05 2.33A5.4 5.4 0 0 1 9 3.58z"/>
+                        </svg>
+                      )}
+                      {googleAuthLoading
+                        ? (language === "ES" ? "Cargando..." : "Loading...")
+                        : (language === "ES" ? "Verificar con Google" : "Verify with Google")}
                     </button>
                   </div>
                 ) : (

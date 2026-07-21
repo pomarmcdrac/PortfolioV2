@@ -8,7 +8,7 @@ import {
   deleteSkill,
   uploadImage,
 } from "@/lib/api";
-import { Plus, Trash2, Pencil, X } from "lucide-react";
+import { Plus, Trash2, Pencil, X, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const baseInputStyle: any = {
@@ -38,6 +38,7 @@ export default function AdminSkills() {
   const [skills, setSkills] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 
   // Form state
@@ -117,19 +118,27 @@ export default function AdminSkills() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
     let success = false;
-    if (editingId) {
-      success = await updateSkill(editingId, formData);
-    } else {
-      success = await createSkill(formData);
-    }
+    try {
+      if (editingId) {
+        success = await updateSkill(editingId, formData);
+      } else {
+        success = await createSkill(formData);
+      }
 
-    if (success) {
-      resetForm();
-      loadSkills();
-      alert(editingId ? "Actualizado correctamente" : "Creado correctamente");
-    } else {
+      if (success) {
+        resetForm();
+        loadSkills();
+        alert(editingId ? "Actualizado correctamente" : "Creado correctamente");
+      } else {
+        alert("Error al guardar la skill");
+      }
+    } catch (error) {
+      console.error(error);
       alert("Error al guardar la skill");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -297,6 +306,7 @@ export default function AdminSkills() {
 
             <button
               type="submit"
+              disabled={submitting}
               style={{
                 background: editingId
                   ? "var(--color-secondary)"
@@ -306,16 +316,23 @@ export default function AdminSkills() {
                 borderRadius: "8px",
                 border: "none",
                 fontWeight: "bold",
-                cursor: "pointer",
+                cursor: submitting ? "not-allowed" : "pointer",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "0.5rem",
                 marginTop: "0.5rem",
+                opacity: submitting ? 0.7 : 1,
               }}
             >
-              {editingId ? <Pencil size={20} /> : <Plus size={20} />}{" "}
-              {editingId ? "Actualizar" : "Guardar"} Skill
+              {submitting ? (
+                <Loader2 className="animate-spin" size={20} />
+              ) : editingId ? (
+                <Pencil size={20} />
+              ) : (
+                <Plus size={20} />
+              )}{" "}
+              {submitting ? "Guardando..." : editingId ? "Actualizar" : "Guardar"} Skill
             </button>
           </form>
         </div>
@@ -429,10 +446,21 @@ export default function AdminSkills() {
           </div>
         </div>
       </div>
-      <style jsx>{`
+      <style jsx global>{`
         @media (max-width: 900px) {
           .admin-grid {
             grid-template-columns: 1fr !important;
+          }
+        }
+        .animate-spin {
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
           }
         }
       `}</style>

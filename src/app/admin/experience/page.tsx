@@ -8,13 +8,25 @@ import {
   deleteExperience,
 } from "@/lib/api";
 import { useRouter } from "next/navigation";
-import { Trash2, Plus, Calendar, Building, Pencil, X } from "lucide-react";
+import { Trash2, Plus, Calendar, Building, Pencil, X, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
+
+const formatRawDate = (dateStr: string) => {
+  if (!dateStr || !/^\d{4}-\d{2}$/.test(dateStr)) return dateStr;
+  const [year, month] = dateStr.split('-');
+  const monthNames = [
+    'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+    'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+  ];
+  const monthIndex = parseInt(month, 10) - 1;
+  return `${monthNames[monthIndex]} ${year}`;
+};
 
 export default function AdminExperience() {
   const [experienceList, setExperienceList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 
   const {
@@ -22,8 +34,11 @@ export default function AdminExperience() {
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors },
   } = useForm();
+
+  const isCurrentJob = watch("current");
 
   useEffect(() => {
     // Check auth
@@ -38,7 +53,7 @@ export default function AdminExperience() {
   async function loadData() {
     setLoading(true);
     try {
-      const data = await getExperience();
+      const data = await getExperience("raw");
       setExperienceList(data);
     } catch (error) {
       console.error(error);
@@ -66,6 +81,7 @@ export default function AdminExperience() {
     setValue("endDate", item.endDate || "");
     setValue("description", item.description);
     setValue("descriptionEs", item.descriptionEs || item.description);
+    setValue("current", item.current || false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -75,25 +91,33 @@ export default function AdminExperience() {
   };
 
   const onSubmit = async (data: any) => {
-    // Basic format adjustment if needed by API
+    setSubmitting(true);
     const payload = {
       ...data,
-      current: data.endDate === "", // Simple logic for current job
+      current: !!data.current,
+      endDate: data.current ? null : (data.endDate || null),
     };
 
     let success = false;
-    if (editingId) {
-      success = await updateExperience(editingId, payload);
-    } else {
-      success = await createExperience(payload);
-    }
+    try {
+      if (editingId) {
+        success = await updateExperience(editingId, payload);
+      } else {
+        success = await createExperience(payload);
+      }
 
-    if (success) {
-      resetForm();
-      loadData();
-      alert(editingId ? "Actualizado correctamente" : "Creado correctamente");
-    } else {
+      if (success) {
+        resetForm();
+        loadData();
+        alert(editingId ? "Actualizado correctamente" : "Creado correctamente");
+      } else {
+        alert("Error al guardar experiencia");
+      }
+    } catch (error) {
+      console.error(error);
       alert("Error al guardar experiencia");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -241,12 +265,13 @@ export default function AdminExperience() {
                     opacity: 0.7,
                   }}
                 >
-                  Fecha Inicio
+                  Fecha Inicio (YYYY-MM)
                 </label>
                 <input
-                  {...register("startDate", { required: true })}
+                  {...register("startDate", { required: true, pattern: /^\d{4}-\d{2}$/ })}
                   style={inputStyle}
-                  placeholder="Ej. 2022"
+                  placeholder="Ej. 2022-01"
+                  maxLength={7}
                 />
               </div>
               <div>
@@ -258,14 +283,43 @@ export default function AdminExperience() {
                     opacity: 0.7,
                   }}
                 >
-                  Fecha Fin
+                  Fecha Fin (YYYY-MM)
                 </label>
                 <input
-                  {...register("endDate")}
-                  style={inputStyle}
-                  placeholder="Ej. 2024 o dejar vacío"
+                  {...register("endDate", { required: !isCurrentJob, pattern: isCurrentJob ? undefined : /^\d{4}-\d{2}$/ })}
+                  disabled={isCurrentJob}
+                  style={{ ...inputStyle, opacity: isCurrentJob ? 0.5 : 1 }}
+                  placeholder={isCurrentJob ? "Trabajo actual" : "Ej. 2024-01"}
+                  maxLength={7}
                 />
               </div>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                marginTop: "0.2rem",
+              }}
+            >
+              <input
+                type="checkbox"
+                id="currentJobCheckbox"
+                {...register("current")}
+                style={{ cursor: "pointer", width: "16px", height: "16px" }}
+              />
+              <label
+                htmlFor="currentJobCheckbox"
+                style={{
+                  fontSize: "0.85rem",
+                  cursor: "pointer",
+                  opacity: 0.8,
+                  userSelect: "none",
+                }}
+              >
+                Este es mi trabajo actual (oculta fecha de fin)
+              </label>
             </div>
 
             <div
@@ -323,6 +377,7 @@ export default function AdminExperience() {
 
             <button
               type="submit"
+              disabled={submitting}
               style={{
                 background: editingId
                   ? "var(--color-secondary)"
@@ -332,16 +387,23 @@ export default function AdminExperience() {
                 borderRadius: "8px",
                 border: "none",
                 fontWeight: "bold",
-                cursor: "pointer",
+                cursor: submitting ? "not-allowed" : "pointer",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "0.5rem",
                 marginTop: "1rem",
+                opacity: submitting ? 0.7 : 1,
               }}
             >
-              {editingId ? <Pencil size={20} /> : <Plus size={20} />}{" "}
-              {editingId ? "Actualizar" : "Guardar"} Experiencia
+              {submitting ? (
+                <Loader2 className="animate-spin" size={20} />
+              ) : editingId ? (
+                <Pencil size={20} />
+              ) : (
+                <Plus size={20} />
+              )}{" "}
+              {submitting ? "Guardando..." : editingId ? "Actualizar" : "Guardar"} Experiencia
             </button>
           </form>
         </div>
@@ -436,8 +498,8 @@ export default function AdminExperience() {
                       gap: "0.3rem",
                     }}
                   >
-                    <Calendar size={14} /> {item.startDate} -{" "}
-                    {item.endDate || "Presente"}
+                    <Calendar size={14} /> {formatRawDate(item.startDate)} -{" "}
+                    {item.current || !item.endDate ? "Actual" : formatRawDate(item.endDate)}
                   </span>
                 </div>
                 <p
@@ -461,10 +523,21 @@ export default function AdminExperience() {
           </div>
         </div>
       </div>
-      <style jsx>{`
+      <style jsx global>{`
         @media (max-width: 768px) {
           .admin-grid {
             grid-template-columns: 1fr !important;
+          }
+        }
+        .animate-spin {
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
           }
         }
       `}</style>

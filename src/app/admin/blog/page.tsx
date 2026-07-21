@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getBlogs, createBlog, updateBlog, deleteBlog } from "@/lib/api";
-import { Plus, Trash2, Pencil, X } from "lucide-react";
+import { Plus, Trash2, Pencil, X, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 // Estilos de inputs (reutilizados del estándar)
@@ -22,6 +22,7 @@ export default function AdminBlog() {
   const [blogs, setBlogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 
   // Form state
@@ -102,6 +103,7 @@ export default function AdminBlog() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
     const payload = {
       ...formData,
       tags: formData.tags
@@ -118,18 +120,25 @@ export default function AdminBlog() {
     };
 
     let success = false;
-    if (editingId) {
-      success = await updateBlog(editingId, payload);
-    } else {
-      success = await createBlog(payload);
-    }
+    try {
+      if (editingId) {
+        success = await updateBlog(editingId, payload);
+      } else {
+        success = await createBlog(payload);
+      }
 
-    if (success) {
-      resetForm();
-      loadBlogs();
-      // alert(editingId ? "Post actualizado" : "Post publicado");
-    } else {
+      if (success) {
+        resetForm();
+        loadBlogs();
+        // alert(editingId ? "Post actualizado" : "Post publicado");
+      } else {
+        alert("Error al guardar el post");
+      }
+    } catch (error) {
+      console.error(error);
       alert("Error al guardar el post");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -389,6 +398,7 @@ export default function AdminBlog() {
 
             <button
               type="submit"
+              disabled={submitting}
               style={{
                 background: editingId
                   ? "var(--color-secondary)"
@@ -398,16 +408,27 @@ export default function AdminBlog() {
                 borderRadius: "8px",
                 border: "none",
                 fontWeight: "bold",
-                cursor: "pointer",
+                cursor: submitting ? "not-allowed" : "pointer",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "0.5rem",
                 marginTop: "0.5rem",
+                opacity: submitting ? 0.7 : 1,
               }}
             >
-              {editingId ? <Pencil size={20} /> : <Plus size={20} />}{" "}
-              {editingId ? "Actualizar Post" : "Publicar Post"}
+              {submitting ? (
+                <Loader2 className="animate-spin" size={20} />
+              ) : editingId ? (
+                <Pencil size={20} />
+              ) : (
+                <Plus size={20} />
+              )}{" "}
+              {submitting
+                ? "Guardando..."
+                : editingId
+                ? "Actualizar Post"
+                : "Publicar Post"}
             </button>
           </form>
         </div>
@@ -566,10 +587,21 @@ export default function AdminBlog() {
           </div>
         </div>
       </div>
-      <style jsx>{`
+      <style jsx global>{`
         @media (max-width: 900px) {
           .admin-grid {
             grid-template-columns: 1fr !important;
+          }
+        }
+        .animate-spin {
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
           }
         }
       `}</style>

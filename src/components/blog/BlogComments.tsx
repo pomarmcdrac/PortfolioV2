@@ -224,12 +224,12 @@ export default function BlogComments({ blogSlug }: BlogCommentsProps) {
               <textarea
                 placeholder={
                   language === "ES"
-                    ? "Deja tu comentario sobre este artículo (máx. 500 caracteres)..."
-                    : "Leave your comment on this article (max 500 characters)..."
+                    ? "Deja tu comentario sobre este artículo (máx. 400 caracteres)..."
+                    : "Leave your comment on this article (max 400 characters)..."
                 }
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                maxLength={500}
+                maxLength={400}
                 required
                 style={{
                   width: "100%",
@@ -253,9 +253,9 @@ export default function BlogComments({ blogSlug }: BlogCommentsProps) {
                 bottom: "0.75rem",
                 right: "1rem",
                 fontSize: "0.8rem",
-                color: newComment.length >= 450 ? "#ff6b6b" : "rgba(255,255,255,0.4)"
+                color: newComment.length >= 360 ? "#ff6b6b" : "rgba(255,255,255,0.4)"
               }}>
-                {newComment.length}/500
+                {newComment.length}/400
               </span>
             </div>
 

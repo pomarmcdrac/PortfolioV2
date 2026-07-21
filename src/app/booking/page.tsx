@@ -105,9 +105,9 @@ export default function BookingPage() {
   };
 
   const validatePhone = (phone: string) => {
-    // Allows +, spaces, dashes, parentheses and 8-15 digits
+    // Allows only 10 digits or 13 characters (like +52 + 10 digits)
     const cleaned = phone.replace(/[^\d+]/g, "");
-    return cleaned.length >= 8 && cleaned.length <= 15;
+    return cleaned.length === 10 || (cleaned.startsWith("+") && cleaned.length === 13);
   };
 
   const isFormValid =
@@ -910,9 +910,9 @@ export default function BookingPage() {
                             type="tel"
                             placeholder={t.booking.form.placeholderPhone}
                             value={form.phone}
-                            maxLength={20}
+                            maxLength={13}
                             onChange={(e) =>
-                              setForm({ ...form, phone: e.target.value })
+                              setForm({ ...form, phone: e.target.value.replace(/[^\d+]/g, "") })
                             }
                           />
                         </div>
@@ -925,7 +925,7 @@ export default function BookingPage() {
                           <textarea
                             placeholder={t.booking.form.placeholderMessage}
                             value={form.message}
-                            maxLength={500}
+                            maxLength={400}
                             onChange={(e) =>
                               setForm({ ...form, message: e.target.value })
                             }

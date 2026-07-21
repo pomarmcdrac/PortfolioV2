@@ -4,6 +4,7 @@ import { useState } from "react";
 import { login } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -134,15 +135,39 @@ export default function LoginPage() {
               color: "white",
               border: "none",
               fontWeight: "bold",
-              cursor: "pointer",
+              cursor: loading ? "not-allowed" : "pointer",
               marginTop: "0.5rem",
               opacity: loading ? 0.7 : 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.5rem",
             }}
           >
-            {loading ? "Iniciando sesión..." : "Entrar"}
+            {loading ? (
+              <>
+                <Loader2 className="animate-spin" size={20} />
+                Iniciando sesión...
+              </>
+            ) : (
+              "Entrar"
+            )}
           </button>
         </form>
       </motion.div>
+      <style jsx global>{`
+        .animate-spin {
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
     </main>
   );
 }

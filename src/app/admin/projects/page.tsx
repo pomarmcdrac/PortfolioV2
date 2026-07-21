@@ -9,7 +9,7 @@ import {
   uploadImage,
 } from "@/lib/api";
 import { Project } from "@/data/projects";
-import { Plus, Trash2, Github, ExternalLink, Pencil } from "lucide-react";
+import { Plus, Trash2, Github, ExternalLink, Pencil, Loader2 } from "lucide-react";
 
 import { useRouter } from "next/navigation";
 
@@ -40,6 +40,7 @@ export default function AdminProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 
   // Form state
@@ -73,7 +74,7 @@ export default function AdminProjects() {
   async function loadProjects() {
     setLoading(true);
     try {
-      const data = await getProjects("es"); // Admin default to 'es' for list
+      const data = await getProjects(); // Fetch raw unlocalized data for admin
       setProjects(data);
     } catch (error) {
       console.error("Error loading projects:", error);
@@ -144,6 +145,7 @@ export default function AdminProjects() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
     const payload = {
       ...formData,
       order: Number(formData.order),
@@ -151,18 +153,25 @@ export default function AdminProjects() {
     };
 
     let success = false;
-    if (editingId) {
-      success = await updateProject(editingId, payload);
-    } else {
-      success = await createProject(payload);
-    }
+    try {
+      if (editingId) {
+        success = await updateProject(editingId, payload);
+      } else {
+        success = await createProject(payload);
+      }
 
-    if (success) {
-      resetForm();
-      loadProjects();
-      alert(editingId ? "Proyecto actualizado" : "Proyecto creado");
-    } else {
+      if (success) {
+        resetForm();
+        loadProjects();
+        alert(editingId ? "Proyecto actualizado" : "Proyecto creado");
+      } else {
+        alert("Error al guardar el proyecto");
+      }
+    } catch (error) {
+      console.error(error);
       alert("Error al guardar el proyecto");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -522,6 +531,7 @@ export default function AdminProjects() {
 
             <button
               type="submit"
+              disabled={submitting}
               style={{
                 background: editingId
                   ? "var(--color-secondary)"
@@ -531,16 +541,23 @@ export default function AdminProjects() {
                 borderRadius: "8px",
                 border: "none",
                 fontWeight: "bold",
-                cursor: "pointer",
+                cursor: submitting ? "not-allowed" : "pointer",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "0.5rem",
                 marginTop: "0.5rem",
+                opacity: submitting ? 0.7 : 1,
               }}
             >
-              {editingId ? <Pencil size={20} /> : <Plus size={20} />}{" "}
-              {editingId ? "Actualizar Proyecto" : "Guardar Proyecto"}
+              {submitting ? (
+                <Loader2 className="animate-spin" size={20} />
+              ) : editingId ? (
+                <Pencil size={20} />
+              ) : (
+                <Plus size={20} />
+              )}{" "}
+              {submitting ? "Guardando..." : editingId ? "Actualizar Proyecto" : "Guardar Proyecto"}
             </button>
           </form>
         </div>
@@ -704,10 +721,21 @@ export default function AdminProjects() {
           </div>
         </div>
       </div>
-      <style jsx>{`
+      <style jsx global>{`
         @media (max-width: 900px) {
           .admin-grid {
             grid-template-columns: 1fr !important;
+          }
+        }
+        .animate-spin {
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
           }
         }
       `}</style>

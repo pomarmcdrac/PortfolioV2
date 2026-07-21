@@ -123,7 +123,7 @@ export async function updateExperience(
   const baseUrl = getBaseUrl();
   try {
     const response = await fetch(`${baseUrl}/experience/${id}`, {
-      method: "PUT",
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         ...getAuthHeader(),
@@ -425,7 +425,7 @@ export async function updateProject(
   const baseUrl = getBaseUrl();
   try {
     const response = await fetch(`${baseUrl}/projects/${id}`, {
-      method: "PUT",
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         ...getAuthHeader(),
@@ -490,7 +490,7 @@ export async function updateSkill(
   const baseUrl = getBaseUrl();
   try {
     const response = await fetch(`${baseUrl}/skills/${id}`, {
-      method: "PUT",
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         ...getAuthHeader(),
